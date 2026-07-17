@@ -1,0 +1,329 @@
+{
+  "app": "BeBoo",
+  "version": "seed-1",
+  "note": "Static demo stories. Final image prompt per page = styleBlock + characterBlock + scene. audioUrl and timings are filled after running TTS + word-level transcription. Labels shown to the child stay lowercase and gentle.",
+  "imagePromptFormula": "styleBlock + ' ' + story.characterBlock + ' ' + page.scene",
+  "styleId": "storybook-flat",
+  "styleBlock": "Flat 2D digital vector illustration in the style of a modern children's picture book series. Simple rounded characters built from soft geometric shapes, slightly large heads, and clearly expressive faces: big oval eyes, visible eyebrows, and simple mouth shapes so the emotion can be read at a glance. Smooth flat color fills, no outlines, very subtle soft shading, no gradients, no texture noise. Calm muted pastel palette of soft teal, warm cream, sand beige, dusty coral and gentle sky blue, low saturation, never neon or harsh primary colors. Soft, even, diffuse lighting with no hard shadows. Eye-level view, one clear focal point, generous negative space, background limited to three or four large simple shapes. Every image looks like a page from the same book, identical character designs and proportions throughout. No text, letters, numbers, or logos anywhere. No photorealism, no 3D render, no busy patterns, no dark or frightening shading, no exaggerated or distorted expressions.",
+  "styleOptions": {
+    "storybook-flat": "See styleBlock above. Recommended default: most consistent across generations, clearest emotion readability, lowest visual stimulation.",
+    "soft-3d": "Soft 3D rendered illustration with a matte clay and felt toy aesthetic, like a gentle stop-motion children's film. Rounded, chunky character shapes with smooth matte surfaces, no plastic shine. Clearly expressive faces with large simple eyes, visible eyebrows, and simple mouth shapes readable at a glance. Calm muted pastel palette of soft teal, warm cream, sand beige and dusty coral, low saturation. Soft diffuse studio lighting, gentle ambient occlusion, no harsh shadows or dramatic contrast. Eye-level camera, one clear focal subject, minimal uncluttered background with three or four large soft shapes. Consistent character design and proportions in every image, like frames from the same film. No text, letters, numbers, or logos anywhere. No photorealistic humans, no uncanny detail, no motion blur, no dark or frightening lighting.",
+    "watercolor": "Hand-painted watercolor and gouache children's book illustration with a soft rounded pencil underdrawing. Gentle translucent washes in a calm muted pastel palette of soft teal, warm cream, sand beige and dusty coral, with generous white paper breathing space. Simple rounded characters with clearly expressive faces: large eyes, visible eyebrows, simple mouth shapes readable at a glance. Soft even light, no harsh shadows. One clear focal point, minimal background detail. Same character designs and proportions on every page, as if one illustrator painted the whole book. No text, letters, numbers, or logos anywhere. No photorealism, no busy detail, no dark or frightening tones."
+  },
+  "emotionSet": [
+    "happy",
+    "sad",
+    "angry",
+    "scared",
+    "calm",
+    "nervous",
+    "proud",
+    "disappointed"
+  ],
+  "stories": [
+    {
+      "id": "story-dentist-sami",
+      "title": "Sami goes to the dentist",
+      "situationCategory": "health",
+      "childProfile": {
+        "name": "Sami",
+        "age": 7,
+        "readingLevel": "beginner",
+        "interests": [
+          "trains"
+        ],
+        "companion": "a small red-and-teal toy train"
+      },
+      "characterBlock": "Sami, a 7-year-old boy with short curly dark brown hair and light brown skin, wearing a plain blue t-shirt and gray pants, always holding a small red-and-teal toy train. His mother has long dark brown hair in a low bun, light brown skin, and wears a mustard yellow cardigan. The dentist is a friendly woman with short gray hair wearing a light teal medical coat.",
+      "pages": [
+        {
+          "page": 1,
+          "text": "Today Sami is going to the dentist. He brings his little red train with him.",
+          "scene": "Sami stands with his mother in front of a friendly dentist office. The door has a simple white tooth symbol. Soft morning light. Sami looks calm and a little curious, holding his toy train.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 2,
+          "text": "The waiting room is quiet. Sami sits and waits for his turn. His toy train rests on his lap.",
+          "scene": "Sami sits on a soft chair in a calm waiting room, his toy train resting on his lap. His mother sits next to him. A small shelf with picture books stands nearby. Sami looks patient and calm.",
+          "animation": "pan-lr",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 3,
+          "text": "The big chair goes up, whoosh! It feels a little funny. Sami holds his train tight.",
+          "scene": "Sami sits in a big dentist chair that is slightly raised. He holds his toy train close to his chest with both hands. His shoulders are up and his eyes are wide. He looks a little nervous. The friendly dentist stands nearby, smiling gently.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Sami feel in the big chair?",
+            "options": [
+              {
+                "id": "nervous",
+                "label": "nervous"
+              },
+              {
+                "id": "happy",
+                "label": "happy"
+              },
+              {
+                "id": "angry",
+                "label": "angry"
+              }
+            ],
+            "correctId": "nervous",
+            "scaffold": "Look at Sami again. He is holding his train very tight, and his shoulders are up high.",
+            "reveal": "Sami feels nervous. He is holding his train very tight."
+          }
+        },
+        {
+          "page": 4,
+          "text": "Sami opens his mouth big and wide. The dentist counts his teeth gently. One, two, three...",
+          "scene": "Sami lies back in the dentist chair with his mouth open wide. The dentist gently holds a small round mirror tool near his mouth. His toy train rests on his tummy. The scene is calm and bright.",
+          "animation": "pan-lr",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 5,
+          "text": "All done! The dentist says Sami's teeth are strong. Sami feels proud.",
+          "scene": "Sami stands up with a big proud smile, holding his toy train up high in the air. The dentist waves goodbye. His mother smiles by the door.",
+          "animation": "zoom-out",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Sami feel now?",
+            "options": [
+              {
+                "id": "proud",
+                "label": "proud"
+              },
+              {
+                "id": "scared",
+                "label": "scared"
+              },
+              {
+                "id": "sad",
+                "label": "sad"
+              }
+            ],
+            "correctId": "proud",
+            "scaffold": "Look at Sami's big smile. He is holding his train up high in the air.",
+            "reveal": "Sami feels proud. He holds his train up high."
+          }
+        }
+      ],
+      "bridgeQuestion": "Have you ever been to the dentist? How did you feel?"
+    },
+    {
+      "id": "story-firedrill-maya",
+      "title": "Maya and the fire drill",
+      "situationCategory": "school",
+      "childProfile": {
+        "name": "Maya",
+        "age": 6,
+        "readingLevel": "beginner",
+        "interests": [
+          "dinosaurs"
+        ],
+        "companion": "a small soft green dinosaur plush"
+      },
+      "characterBlock": "Maya, a 6-year-old girl with two black puff pigtails and dark brown skin, wearing a green dinosaur t-shirt and an orange skirt, often carrying a small soft green dinosaur plush. Her teacher is a tall kind man with short black hair, round glasses, and a warm brown sweater.",
+      "pages": [
+        {
+          "page": 1,
+          "text": "Sometimes at school, the fire alarm rings. It is only practice. Practice helps everyone stay safe.",
+          "scene": "A calm classroom. Maya sits at her desk holding her small green dinosaur plush. Her kind teacher stands near the door. Everything is quiet and normal.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 2,
+          "text": "The alarm is very loud. Maya covers her ears. That is okay.",
+          "scene": "Maya stands by her desk covering both ears with her hands. Her eyes are squeezed almost shut and her mouth is small. She looks scared. A small round alarm light glows softly on the wall. Classmates start to make a calm line by the door.",
+          "animation": "none",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Maya feel when the alarm rings?",
+            "options": [
+              {
+                "id": "scared",
+                "label": "scared"
+              },
+              {
+                "id": "happy",
+                "label": "happy"
+              },
+              {
+                "id": "calm",
+                "label": "calm"
+              }
+            ],
+            "correctId": "scared",
+            "scaffold": "Look again. Maya's hands are over her ears and her eyes are almost closed.",
+            "reveal": "Maya feels scared. Her hands are over her ears."
+          }
+        },
+        {
+          "page": 3,
+          "text": "Maya walks in line with her class. They go outside together, slow and steady. Maya holds her dinosaur close.",
+          "scene": "Children walk in a calm single line through a door toward the schoolyard. Maya is in the middle of the line, holding her dinosaur plush. The teacher leads at the front of the line.",
+          "animation": "pan-lr",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 4,
+          "text": "Outside, the alarm stops and it is quiet. Maya takes a big slow breath. In... and out.",
+          "scene": "Maya stands on the schoolyard grass with her eyes gently closed, taking a slow deep breath, one hand resting on her tummy and the other holding her dinosaur plush. Classmates stand calmly in the background under a soft sky.",
+          "animation": "zoom-out",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Maya feel now?",
+            "options": [
+              {
+                "id": "calm",
+                "label": "calm"
+              },
+              {
+                "id": "angry",
+                "label": "angry"
+              },
+              {
+                "id": "scared",
+                "label": "scared"
+              }
+            ],
+            "correctId": "calm",
+            "scaffold": "Look at Maya's face. Her eyes are soft and she is breathing slowly.",
+            "reveal": "Maya feels calm. She is breathing slowly, in and out."
+          }
+        },
+        {
+          "page": 5,
+          "text": "The practice is over. Everyone goes back inside. Maya feels proud and brave.",
+          "scene": "Maya walks back into the school with a small proud smile, her dinosaur plush under her arm. The teacher gives a gentle thumbs up at the door.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        }
+      ],
+      "bridgeQuestion": "Have you ever heard a very loud sound? What helps you feel calm?"
+    },
+    {
+      "id": "story-planchange-adam",
+      "title": "Adam and the plan that changed",
+      "situationCategory": "daily-life",
+      "childProfile": {
+        "name": "Adam",
+        "age": 8,
+        "readingLevel": "reader",
+        "interests": [
+          "space",
+          "rockets"
+        ],
+        "companion": "none"
+      },
+      "characterBlock": "Adam, an 8-year-old boy with straight black hair and tan skin, wearing round glasses, a navy blue t-shirt with a small white rocket shape, and dark pants. His dad has a short dark beard, tan skin, and wears an olive green sweater.",
+      "pages": [
+        {
+          "page": 1,
+          "text": "Today Adam has a plan. After lunch, he is going to the park with Dad. Adam likes plans very much.",
+          "scene": "Adam stands in his living room pointing happily at a simple picture schedule on the wall showing a small sun drawing and a park swing drawing. He looks excited. Dad smiles nearby.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 2,
+          "text": "Drip, drip, drip. Rain starts to fall. The park is closed today. Sometimes plans change, even good plans.",
+          "scene": "Adam stands at the window watching heavy rain fall outside. His shoulders are low and his mouth is small and turned down. He looks disappointed. Soft gray-blue light comes through the window.",
+          "animation": "none",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Adam feel when the plan changes?",
+            "options": [
+              {
+                "id": "disappointed",
+                "label": "disappointed"
+              },
+              {
+                "id": "happy",
+                "label": "happy"
+              },
+              {
+                "id": "angry",
+                "label": "angry"
+              }
+            ],
+            "correctId": "disappointed",
+            "scaffold": "Look at Adam by the window. His shoulders are low and his mouth is turned down. He really wanted to go to the park.",
+            "reveal": "Adam feels disappointed. His shoulders are low by the window."
+          }
+        },
+        {
+          "page": 3,
+          "text": "Adam still feels disappointed. That is okay. Even astronauts wait when the weather is bad. Adam squeezes his hands tight, then lets go slowly.",
+          "scene": "Adam sits cross-legged on the living room rug, squeezing his hands into gentle fists in front of him, eyes focused and calm. Dad sits quietly beside him. The window behind them shows soft falling rain.",
+          "animation": "zoom-in",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        },
+        {
+          "page": 4,
+          "text": "Dad has a new plan. They build a rocket fort with blankets. A new plan can be good too.",
+          "scene": "Adam and Dad build a blanket fort shaped a little like a rocket, with cushions and a flashlight nearby. Adam lifts a blanket corner and has a small growing smile.",
+          "animation": "pan-lr",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": {
+            "question": "How does Adam feel about the new plan?",
+            "options": [
+              {
+                "id": "happy",
+                "label": "happy"
+              },
+              {
+                "id": "disappointed",
+                "label": "disappointed"
+              },
+              {
+                "id": "scared",
+                "label": "scared"
+              }
+            ],
+            "correctId": "happy",
+            "scaffold": "Look again. Adam is smiling a little more now as he builds the fort with Dad.",
+            "reveal": "Adam feels happy. He smiles as he builds the fort."
+          }
+        },
+        {
+          "page": 5,
+          "text": "The rain keeps falling outside. Inside, Adam and Dad play astronauts in their fort. Plans can change, and that is okay. Three... two... one... blast off!",
+          "scene": "Adam and Dad sit inside the cozy blanket rocket fort, lit softly by a flashlight, both smiling. Adam raises one arm up high like a rocket launching.",
+          "animation": "zoom-out",
+          "audioUrl": null,
+          "timings": [],
+          "checkIn": null
+        }
+      ],
+      "bridgeQuestion": "Have your plans ever changed? What new plan could be fun for you?"
+    }
+  ]
+}
