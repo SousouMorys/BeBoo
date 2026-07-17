@@ -25,7 +25,7 @@ const expressions: Record<EmotionId, ExpressionPaths> = {
   scared: {
     leftBrow: 'M25 35 Q32 25 40 32',
     rightBrow: 'M80 32 Q88 25 95 35',
-    mouth: 'M50 69 Q60 60 70 69 L70 76 Q60 83 50 76 Z',
+    mouth: '',
   },
   calm: {
     leftBrow: 'M25 32 Q32 29 40 32',
@@ -80,14 +80,18 @@ export function EmotionFace({
       <path d={expression.rightBrow} fill="none" stroke="var(--bb-ink)" strokeLinecap="round" strokeWidth="5" />
       <ellipse cx="38" cy="49" fill="var(--bb-ink)" rx="7" ry="11" />
       <ellipse cx="82" cy="49" fill="var(--bb-ink)" rx="7" ry="11" />
-      <path
-        d={expression.mouth}
-        fill={emotion === 'scared' ? 'var(--bb-ink-soft)' : 'none'}
-        stroke="var(--bb-ink)"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="5"
-      />
+      {emotion === 'scared' ? (
+        <ellipse cx="60" cy="71" fill="var(--bb-ink-soft)" rx="9" ry="7" />
+      ) : (
+        <path
+          d={expression.mouth}
+          fill="none"
+          stroke="var(--bb-ink)"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="5"
+        />
+      )}
     </svg>
   );
 }

@@ -68,6 +68,7 @@ export interface ChildSettings {
   checkIns: boolean;
   ambience: boolean;
   narrationSpeed: 0.8 | 1;
+  autoplay: false;
 }
 
 export interface Child {
@@ -75,5 +76,29 @@ export interface Child {
   firstName: string;
   pronoun: string;
   readingLevel: ReadingLevel;
+  interests: string[];
+  companion: string;
   settings: ChildSettings;
+}
+
+export interface ChildInput {
+  firstName: string;
+  pronoun: string;
+  readingLevel: ReadingLevel;
+  interests: string[];
+  companion: string;
+  settings: Omit<ChildSettings, 'autoplay'>;
+}
+
+export interface CheckInAttemptInput {
+  storyId: string;
+  page: number;
+  childId: string;
+  emotionId: EmotionId;
+  correct: boolean;
+  attempt: 1 | 2;
+}
+
+export interface CheckInAttempt extends CheckInAttemptInput {
+  createdAt: string;
 }

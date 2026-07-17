@@ -100,6 +100,43 @@ decisions, anything fixed. High-value ideas that are out of scope go under
     `--passWithNoTests`; the planned non-trivial backend logic tests land in
     Phase 2.
 
+## 2026-07-18 - Phase 1, Day 2 child flow and parent shell
+
+- Added the one shared `EmotionFace` SVG component for all eight canonical
+  emotions and the development-only `/dev/faces` review route. The child
+  check-in choices now all use that single component.
+- Completed the child story flow: C3 check-ins appear after configured story
+  pages, persist each attempt through `api.ts`, give a warm first-miss
+  scaffold, reveal the answer after a second miss, and use a single 200 ms
+  highlight/nod success response. C4 bridge questions and C5 ending controls
+  now follow the final story page (or its final check-in).
+- Reworked the mock data boundary into a localStorage-backed Phase 1 store for
+  the child profile, PIN, story recency, PIN attempts, and check-in attempts.
+  The UI accesses none of that storage directly. The child profile now carries
+  sensory preferences, with autoplay forced off by the API.
+- Added the first-run onboarding sequence (welcome, profile and sensory form,
+  then 4-digit PIN), the discreet shelf parent icon, P0 PIN gate, and P1
+  Library / Progress / Settings shell. Parent access resets on a page reload
+  and requires PIN verification again.
+- Key decisions and fixes:
+  - The player builds its complete page -> optional check-in -> bridge ->
+    ending flow from story data, so disabling check-ins removes only those
+    steps without changing the player UI.
+  - Added an onboarding-complete guard so an interrupted setup cannot expose
+    the child shelf before a PIN has been saved.
+  - Kept all new motion to the brand limits: 280 ms crossfades and single
+    200 ms nod/glow/wave feedback, all disabled by reduced motion.
+- Verification:
+  - Reviewed new child and parent screens against the BRAND ship checklist.
+    Child controls are at least 64 px; parent controls are at least 44 px;
+    no red error treatments, scores, story locks, timers, autoplay, or sound were
+    added.
+  - Manually tested the 390 px onboarding, neutral PIN mismatch, parent tabs,
+    check-in scaffold/reveal/correct paths, bridge, ending, and `/dev/faces`.
+  - `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run test`
+    pass. The test command remains configured to pass while Phase 1 has no
+    dedicated test files.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

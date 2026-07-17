@@ -77,6 +77,22 @@ a:focus-visible {
   .bb-kenburns-pan-lr {
     animation: bb-pan-lr 14s linear both;
   }
+
+  .bb-success-glow {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--bb-highlight) 82%, transparent);
+    animation: bb-success-glow 200ms ease-out both;
+  }
+
+  .bb-mascot-nod {
+    animation: bb-mascot-nod 200ms ease-in-out both;
+    transform-origin: center 72%;
+  }
+
+  .bb-mascot-wave .bb-mascot-wave-hand {
+    transform-box: fill-box;
+    transform-origin: 25% 82%;
+    animation: bb-mascot-wave 200ms ease-in-out both;
+  }
 }
 
 @keyframes bb-page-crossfade {
@@ -119,12 +135,52 @@ a:focus-visible {
   }
 }
 
+@keyframes bb-success-glow {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--bb-highlight) 0%, transparent);
+  }
+
+  to {
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--bb-highlight) 82%, transparent);
+  }
+}
+
+@keyframes bb-mascot-nod {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(5%);
+  }
+}
+
+@keyframes bb-mascot-wave {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bb-page-transition,
   .bb-kenburns-zoom-in,
   .bb-kenburns-zoom-out,
-  .bb-kenburns-pan-lr {
+  .bb-kenburns-pan-lr,
+  .bb-success-glow,
+  .bb-mascot-nod,
+  .bb-mascot-wave .bb-mascot-wave-hand {
     animation: none !important;
+  }
+
+  .bb-kenburns-zoom-in,
+  .bb-kenburns-zoom-out,
+  .bb-kenburns-pan-lr {
     transform: none !important;
   }
 }

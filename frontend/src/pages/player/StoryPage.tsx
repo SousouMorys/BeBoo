@@ -12,6 +12,7 @@ interface StoryPageProps {
   totalPages: number;
   storyTitle: string;
   playbackRate: number;
+  highlighting: boolean;
   reducedMotion: boolean;
   onHome: () => void;
   onNext: () => void;
@@ -23,6 +24,7 @@ export function StoryPage({
   totalPages,
   storyTitle,
   playbackRate,
+  highlighting,
   reducedMotion,
   onHome,
   onNext,
@@ -75,7 +77,10 @@ export function StoryPage({
             />
           </div>
           <section aria-label={`${storyTitle}, page ${pageIndex + 1}`} className="relative mx-4 -mt-5 rounded-bb bg-bb-surface px-5 py-6 shadow-sm sm:mx-6 sm:px-7">
-            <KaraokeText activeWordIndex={narration.activeWordIndex} text={page.text} />
+            <KaraokeText
+              activeWordIndex={highlighting ? narration.activeWordIndex : -1}
+              text={page.text}
+            />
           </section>
         </div>
       </main>
