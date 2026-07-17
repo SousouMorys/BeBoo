@@ -52,10 +52,10 @@ const currentChild: Child = {
 
 const stories: Story[] = seed.stories.map((story) => ({
   ...story,
-  coverUrl: `/seed/${story.id}-cover.svg`,
+  coverUrl: `/seed/${story.id}/1.jpeg`,
   pages: story.pages.map((page): StoryPageData => ({
     ...page,
-    imageUrl: `/seed/${story.id}-p${page.page}.svg`,
+    imageUrl: `/seed/${story.id}/${page.page}.jpeg`,
   })),
 }));
 
