@@ -61,6 +61,45 @@ decisions, anything fixed. High-value ideas that are out of scope go under
 - Wrote a validation script mirroring the future `story/validate.ts`; the
   seed file passes with 0 errors.
 
+## 2026-07-17 - Phase 1, Day 1 static child zone
+
+- Scaffolded the npm-workspaces monorepo: a React 18 + Vite + strict
+  TypeScript + Tailwind + React Router frontend and a deliberately empty
+  backend placeholder for Phase 2. Root scripts now cover dev, build,
+  typecheck, lint, test, and the future seed command.
+- Built C1 Shelf and C2 Story Player against the sole mock data boundary,
+  `frontend/src/lib/api.ts`. The three validated seed stories render with
+  covers, most-recent-first local ordering, a local mock child profile
+  (Sami), and no backend running.
+- Added all 18 flat pastel placeholder SVG assets under `frontend/public/seed`:
+  one cover plus five page illustrations for each seed story. Covers reuse
+  their first-page art; no seed-story text changed.
+- Implemented the Day 1 components and motion contracts: the shared emotion
+  face set and BeBoo mascot, fixed player controls and progress dots, 14 s
+  linear Ken Burns variants, a 280 ms page crossfade, reduced-motion support
+  combining the mock child setting with `prefers-reduced-motion`, and a
+  tap-only stub narration clock with proportional word highlighting. The
+  clock resets on page changes; the final page returns to the shelf until
+  C3/C4/C5 arrive.
+- Key decisions and fixes:
+  - Kept all client data knowledge inside `api.ts`, preserving the P3
+    mock-to-real swap point.
+  - Used the deeper teal for primary-button backgrounds after checking color
+    contrast: `bb-teal` with light text is 2.79:1, while `bb-teal-deep` with
+    `bb-surface` text is 5.82:1.
+  - Kept the backend code-free, as required for the static-first milestone.
+- Verification:
+  - Reviewed the BRAND section 11 ship checklist against C1/C2: no autoplayed
+    audio, score-like UI, error states, flashing, parallax, or child-visible
+    timers; child touch targets are at least 64 px; copy is literal; controls
+    stay in fixed positions; the reduced-motion CSS fallback is also present.
+  - Manually checked the 390 px shelf and player, tap-to-start karaoke,
+    narration reset on Next, page progress, and final-page shelf return.
+  - `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run test`
+    pass. The Phase 1 Vitest command currently has no test files and uses
+    `--passWithNoTests`; the planned non-trivial backend logic tests land in
+    Phase 2.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

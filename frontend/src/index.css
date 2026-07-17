@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bb-cream: #faf6ef;
+  --bb-surface: #fffdf8;
+  --bb-ink: #33413c;
+  --bb-ink-soft: #5e6e68;
+  --bb-teal: #4fa98f;
+  --bb-teal-deep: #2e6f5e;
+  --bb-sand: #eadfcb;
+  --bb-coral: #e8a08d;
+  --bb-sky: #c7ddea;
+  --bb-highlight: #f6e3b4;
+  --bb-radius: 1.25rem;
+  color: var(--bb-ink);
+  background: var(--bb-cream);
+  font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bb-cream);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--bb-cream);
+  color: var(--bb-ink);
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--bb-teal-deep);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .bb-child-target {
+    min-inline-size: 64px;
+    min-block-size: 64px;
+    border-radius: var(--bb-radius);
+  }
+
+  .bb-parent-target {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    border-radius: 1rem;
+  }
+
+  .bb-page-transition {
+    animation: bb-page-crossfade 280ms ease-out both;
+  }
+
+  .bb-kenburns-zoom-in {
+    animation: bb-zoom-in 14s linear both;
+  }
+
+  .bb-kenburns-zoom-out {
+    animation: bb-zoom-out 14s linear both;
+  }
+
+  .bb-kenburns-pan-lr {
+    animation: bb-pan-lr 14s linear both;
+  }
+}
+
+@keyframes bb-page-crossfade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bb-zoom-in {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bb-zoom-out {
+  from {
+    transform: scale(1.05);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes bb-pan-lr {
+  from {
+    transform: translateX(-1.5%) scale(1.035);
+  }
+
+  to {
+    transform: translateX(1.5%) scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-page-transition,
+  .bb-kenburns-zoom-in,
+  .bb-kenburns-zoom-out,
+  .bb-kenburns-pan-lr {
+    animation: none !important;
+    transform: none !important;
+  }
+}

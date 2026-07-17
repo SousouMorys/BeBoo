@@ -1,0 +1,13 @@
+{
+  "name": "@beboo/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('BeBoo backend is a Phase 2 placeholder.')\"",
+    "build": "node -e \"console.log('BeBoo backend build is deferred to Phase 2.')\"",
+    "typecheck": "node -e \"console.log('BeBoo backend typecheck is deferred to Phase 2.')\"",
+    "lint": "node -e \"console.log('BeBoo backend lint is deferred to Phase 2.')\"",
+    "test": "node -e \"console.log('BeBoo backend tests are deferred to Phase 2.')\"",
+    "seed": "node -e \"console.log('BeBoo database seed is deferred to Phase 2.')\""
+  }
+}
