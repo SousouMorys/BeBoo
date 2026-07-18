@@ -254,10 +254,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 <legend className="px-2 text-[16px] font-bold">Sensory preferences</legend>
                 <div className="grid gap-2">
                   {sensoryOptions.map(({ key, label }) => (
-                    <label className="flex min-h-11 items-center gap-3 text-[16px]" key={key}>
+                    <label className="bb-parent-target bb-token-label flex cursor-pointer items-center gap-3 text-[16px]" key={key}>
                       <input
                         checked={settings[key]}
-                        className="h-5 w-5 accent-bb-teal-deep"
+                        className="bb-token-input sr-only"
                         onChange={(event) =>
                           setSettings({
                             ...settings,
@@ -266,7 +266,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         }
                         type="checkbox"
                       />
-                      {label}
+                      <span aria-hidden="true" className="bb-token-control bb-token-checkbox" />
+                      <span>{label}</span>
                     </label>
                   ))}
                 </div>
@@ -274,13 +275,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <p className="mb-2 text-[16px] font-bold">Narration speed</p>
                   <div className="flex flex-wrap gap-2">
                     {[0.8, 1].map((speed) => (
-                      <label className="flex min-h-11 items-center gap-2 rounded-bb bg-bb-cream px-3 text-[16px]" key={speed}>
+                      <label className="bb-parent-target bb-token-label flex cursor-pointer items-center gap-2 bg-bb-cream px-3 text-[16px]" key={speed}>
                         <input
                           checked={settings.narrationSpeed === speed}
+                          className="bb-token-input sr-only"
                           name="narration-speed"
                           onChange={() => setSettings({ ...settings, narrationSpeed: speed as 0.8 | 1 })}
                           type="radio"
                         />
+                        <span aria-hidden="true" className="bb-token-control bb-token-radio" />
                         {speed}×
                       </label>
                     ))}

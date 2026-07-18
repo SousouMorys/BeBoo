@@ -174,7 +174,8 @@ export function CheckInStep({
 
       {isResolved && (
         <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-bb-sand bg-bb-cream">
-          <div className="mx-auto flex max-w-[560px] justify-end px-4 py-3">
+          <div className="mx-auto flex max-w-[560px] items-center justify-between gap-3 px-4 py-3">
+            <div aria-hidden="true" className="h-16 w-[158px]" />
             <BigButton className="min-w-[150px]" onClick={onNext}>
               <span>Next</span>
               <svg aria-hidden="true" fill="none" height="24" viewBox="0 0 28 28" width="24">

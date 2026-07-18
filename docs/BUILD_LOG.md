@@ -137,6 +137,32 @@ decisions, anything fixed. High-value ideas that are out of scope go under
     pass. The test command remains configured to pass while Phase 1 has no
     dedicated test files.
 
+## 2026-07-18 - Phase 1 polish before Phase 2
+
+- Removed browser-default blue treatment from the frontend: `bb-teal` is now
+  the global accent color; text fields, selects, and buttons receive a visible
+  `bb-teal-deep` focus ring and a matching pressed treatment; text selection
+  uses the palette too.
+- Replaced the onboarding's native sensory checkboxes and narration-speed
+  radios with accessible, token-styled controls. Their visual controls carry
+  the focused, checked, and pressed states while the underlying inputs retain
+  their native form semantics.
+- Matched the resolved check-in footer structure to the story footer and
+  reserved a stable scrollbar gutter. This keeps the home control and the
+  Next control in fixed coordinates when moving between a scrollable story
+  page and a shorter check-in screen.
+- Verification:
+  - Ran the BRAND section 11 checklist against onboarding, PIN gate, and all
+    Parent Hub tabs: the screens remain calm, literal, contrast-safe, free of
+    autoplay/flashing/red/score/timer UI, and use parent-sized 44 px targets.
+  - Visually reviewed focused and pressed control states for onboarding text
+    fields, selects, custom checkboxes/radios, PIN entry, parent navigation,
+    and parent tabs. Measured matching 64 px Next/footer geometry between the
+    story player and resolved check-in after the scrollbar fix.
+  - `npm run typecheck`, `npm run lint`, `npm run build`, and `npm run test`
+    pass. Vitest still has no Phase 1 test files and exits through
+    `--passWithNoTests`.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

@@ -18,6 +18,7 @@
   --bb-radius: 1.25rem;
   color: var(--bb-ink);
   background: var(--bb-cream);
+  accent-color: var(--bb-teal);
   font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
   font-synthesis: none;
 }
@@ -28,6 +29,7 @@
 
 html {
   background: var(--bb-cream);
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -39,14 +41,44 @@ body {
 }
 
 button,
-a {
+a,
+input,
+select,
+textarea {
   font: inherit;
+  color: inherit;
 }
 
 button:focus-visible,
-a:focus-visible {
+button:focus,
+a:focus-visible,
+a:focus,
+input:focus-visible,
+input:focus,
+select:focus-visible,
+select:focus,
+textarea:focus-visible,
+textarea:focus {
   outline: 3px solid var(--bb-teal-deep);
   outline-offset: 3px;
+}
+
+button:active:not(:disabled),
+input:not([type='checkbox']):not([type='radio']):active,
+select:active,
+textarea:active {
+  box-shadow: inset 0 0 0 2px var(--bb-teal-deep);
+}
+
+input,
+select,
+textarea {
+  accent-color: var(--bb-teal);
+}
+
+::selection {
+  background: var(--bb-highlight);
+  color: var(--bb-ink);
 }
 
 @layer components {
@@ -60,6 +92,78 @@ a:focus-visible {
     min-inline-size: 44px;
     min-block-size: 44px;
     border-radius: 1rem;
+  }
+
+  .bb-token-input {
+    accent-color: var(--bb-teal);
+  }
+
+  .bb-token-input:focus,
+  .bb-token-input:focus-visible {
+    outline: 0;
+  }
+
+  .bb-token-control {
+    display: inline-grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 2px solid var(--bb-teal-deep);
+    background: var(--bb-surface);
+  }
+
+  .bb-token-control::after {
+    content: '';
+    display: block;
+    opacity: 0;
+  }
+
+  .bb-token-checkbox {
+    border-radius: 0.5rem;
+  }
+
+  .bb-token-checkbox::after {
+    width: 0.7rem;
+    height: 0.42rem;
+    margin-top: -0.18rem;
+    border-bottom: 2px solid var(--bb-surface);
+    border-left: 2px solid var(--bb-surface);
+    transform: rotate(-45deg);
+  }
+
+  .bb-token-radio {
+    border-radius: 999px;
+  }
+
+  .bb-token-radio::after {
+    width: 0.68rem;
+    height: 0.68rem;
+    border-radius: 999px;
+    background: var(--bb-surface);
+  }
+
+  .bb-token-input:checked + .bb-token-control {
+    border-color: var(--bb-teal-deep);
+    background: var(--bb-teal);
+  }
+
+  .bb-token-input:checked + .bb-token-control::after {
+    opacity: 1;
+  }
+
+  .bb-token-input:focus + .bb-token-control,
+  .bb-token-input:focus-visible + .bb-token-control {
+    outline: 3px solid var(--bb-teal-deep);
+    outline-offset: 3px;
+  }
+
+  .bb-token-input:active + .bb-token-control {
+    box-shadow: inset 0 0 0 2px var(--bb-teal-deep);
+  }
+
+  .bb-token-label:active .bb-token-control {
+    box-shadow: inset 0 0 0 2px var(--bb-teal-deep);
   }
 
   .bb-page-transition {
