@@ -18,6 +18,7 @@
   --bb-radius: 1.25rem;
   color: var(--bb-ink);
   background: var(--bb-cream);
+  color-scheme: light;
   accent-color: var(--bb-teal);
   font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
   font-synthesis: none;
@@ -74,6 +75,28 @@ input,
 select,
 textarea {
   accent-color: var(--bb-teal);
+}
+
+input[type='number'],
+textarea {
+  border-color: var(--bb-sand);
+  border-radius: var(--bb-radius);
+  background: var(--bb-surface);
+  color: var(--bb-ink);
+}
+
+input[type='number'] {
+  appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+textarea {
+  resize: vertical;
 }
 
 ::selection {

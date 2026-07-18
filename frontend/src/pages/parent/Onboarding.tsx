@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent, KeyboardEvent } from 'react';
 import { BebooMascot } from '../../components/BebooMascot';
 import { ProgressDots } from '../../components/ProgressDots';
+import { SelectField } from '../../components/SelectField';
 import { api } from '../../lib/api';
 import type { ChildInput, ReadingLevel } from '../../lib/types';
 
@@ -158,29 +159,29 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               <div className="grid gap-5 sm:grid-cols-2">
                 <label className="grid gap-2 text-[16px] font-bold" htmlFor="child-pronoun">
                   Pronouns
-                  <select
-                    className="h-12 rounded-bb border-2 border-bb-sand bg-bb-cream px-4 font-normal text-bb-ink outline-none focus:border-bb-teal-deep"
+                  <SelectField
                     id="child-pronoun"
-                    onChange={(event) => setPronoun(event.target.value)}
+                    onValueChange={setPronoun}
+                    options={[
+                      { label: 'she/her', value: 'she/her' },
+                      { label: 'he/him', value: 'he/him' },
+                      { label: 'they/them', value: 'they/them' },
+                    ]}
                     value={pronoun}
-                  >
-                    <option value="she/her">she/her</option>
-                    <option value="he/him">he/him</option>
-                    <option value="they/them">they/them</option>
-                  </select>
+                  />
                 </label>
                 <label className="grid gap-2 text-[16px] font-bold" htmlFor="reading-level">
                   Reading level
-                  <select
-                    className="h-12 rounded-bb border-2 border-bb-sand bg-bb-cream px-4 font-normal text-bb-ink outline-none focus:border-bb-teal-deep"
+                  <SelectField
                     id="reading-level"
-                    onChange={(event) => setReadingLevel(event.target.value as ReadingLevel)}
+                    onValueChange={(value) => setReadingLevel(value as ReadingLevel)}
+                    options={[
+                      { label: 'pre-reader', value: 'pre-reader' },
+                      { label: 'beginner', value: 'beginner' },
+                      { label: 'reader', value: 'reader' },
+                    ]}
                     value={readingLevel}
-                  >
-                    <option value="pre-reader">pre-reader</option>
-                    <option value="beginner">beginner</option>
-                    <option value="reader">reader</option>
-                  </select>
+                  />
                 </label>
               </div>
 
@@ -225,16 +226,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
               <label className="grid gap-2 text-[16px] font-bold" htmlFor="companion-choice">
                 Companion
-                <select
-                  className="h-12 rounded-bb border-2 border-bb-sand bg-bb-cream px-4 font-normal text-bb-ink outline-none focus:border-bb-teal-deep"
+                <SelectField
                   id="companion-choice"
-                  onChange={(event) => setCompanionChoice(event.target.value as CompanionChoice)}
+                  onValueChange={(value) => setCompanionChoice(value as CompanionChoice)}
+                  options={[
+                    { label: 'BeBoo', value: 'BeBoo' },
+                    { label: 'none', value: 'none' },
+                    { label: 'Describe a companion', value: 'custom' },
+                  ]}
                   value={companionChoice}
-                >
-                  <option value="BeBoo">BeBoo</option>
-                  <option value="none">none</option>
-                  <option value="custom">Describe a companion</option>
-                </select>
+                />
               </label>
               {companionChoice === 'custom' ? (
                 <label className="grid gap-2 text-[16px] font-bold" htmlFor="custom-companion">

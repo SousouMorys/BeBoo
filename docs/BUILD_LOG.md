@@ -163,6 +163,25 @@ decisions, anything fixed. High-value ideas that are out of scope go under
     pass. Vitest still has no Phase 1 test files and exits through
     `--passWithNoTests`.
 
+## 2026-07-18 - Select styling follow-up
+
+- Added the shared `SelectField` component for every in-app select (pronouns,
+  reading level, and companion), with a custom chevron, token colors,
+  light-only native controls, and no browser-blue focus treatment. Audited the
+  remaining native inputs: checkboxes and radios already use the token
+  controls; text/password inputs already use token classes; no number inputs
+  or textareas are currently rendered. `npm run typecheck`, `npm run lint`,
+  and `npm run build` pass.
+
+## 2026-07-18 - Native select popup fix
+
+- Replaced the native select popup inside `SelectField` with a fully in-app,
+  keyboard-operable button/listbox. The opened options now use only
+  `bb-surface`, `bb-sand`, and `bb-teal-deep`, so the operating system cannot
+  inject its blue selected-option treatment. Verified opening, selection, and
+  closing in the frontend preview; `npm run typecheck`, `npm run lint`, and
+  `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
