@@ -2,12 +2,35 @@
   "name": "@beboo/backend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "node -e \"console.log('BeBoo backend is a Phase 2 placeholder.')\"",
-    "build": "node -e \"console.log('BeBoo backend build is deferred to Phase 2.')\"",
-    "typecheck": "node -e \"console.log('BeBoo backend typecheck is deferred to Phase 2.')\"",
-    "lint": "node -e \"console.log('BeBoo backend lint is deferred to Phase 2.')\"",
-    "test": "node -e \"console.log('BeBoo backend tests are deferred to Phase 2.')\"",
-    "seed": "node -e \"console.log('BeBoo database seed is deferred to Phase 2.')\""
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src --ext .ts --max-warnings=0",
+    "test": "vitest run --passWithNoTests",
+    "seed": "tsx src/seed.ts",
+    "prisma": "prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.13.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "openai": "^5.12.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.32",
+    "eslint": "^9.39.1",
+    "prisma": "^6.13.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vitest": "^2.1.9"
   }
 }

@@ -182,6 +182,43 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   closing in the frontend preview; `npm run typecheck`, `npm run lint`, and
   `npm run build` pass.
 
+## 2026-07-18 - Phase 2 illustration contract
+
+- Locked `soft-3d` as BeBoo's official illustration style. The approved prompt
+  block now appears in BRAND section 10, while the backend runtime owns its
+  canonical `styleBlock` constant in `backend/src/lib/images/style.ts`.
+- Kept `storybook-flat` and `watercolor` documented as inactive alternates.
+  The existing validated seed JSON remains unchanged.
+
+## 2026-07-18 - Backend recovery checkpoint
+
+- Verified the soft-3D brand contract and its canonical backend style block;
+  the checked-in initial Prisma migration exactly matches the schema.
+- Added the Express/TypeScript/Zod/Prisma backend scaffold, seed importer,
+  hashed JPEG media import, validated API routes, production static serving,
+  and the explicit failed-state story-generation stub.
+- Verification: full typecheck, lint, build, and test pass (including the
+  three story validator tests). backend/.env.example was redacted to safe
+  placeholders. The untracked backend/.env is absent in this workspace, so
+  Neon migration and database seeding remain pending secure local config.
+
+## 2026-07-18 - Terra generation model check
+
+- Set the story writer and model validator to `gpt-5.6-terra`, retaining the
+  strict structured-output contract and bounded retry policy.
+- Confirmed the drawing configuration uses `gpt-image-1-mini` at low quality,
+  and that `gpt-4o-mini-tts` with the configured `marin` voice is available
+  for the later voice stage. Voicing remains the intentional pass-through stub
+  for this milestone; no audio was generated or autoplay added.
+- Ran a live three-page health story from the wizard for Sami. Terra completed
+  writing and validation, the image stage created the character sheet and page
+  art, and the ready story opened from the child shelf with `/api/media/...`
+  assets.
+- Verification: `npm run typecheck`, `npm run lint`, `npm run test`, and
+  `npm run build` pass. The live run is estimated at roughly $0.06-$0.12:
+  about $0.02 for four low-quality mini image outputs plus an estimate for
+  Terra writing and validation; TTS is excluded.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
@@ -189,6 +226,6 @@ decisions, anything fixed. High-value ideas that are out of scope go under
 - Read-only share link for a story, so a co-parent or teacher can preview it.
 - Optional display typeface (e.g. Baloo 2) for headings if the all-Nunito
   hierarchy feels flat in practice — BRAND.md stays the gate.
-- Illustration style picker in P5 using the `styleOptions` shipped in the
-  seed file (soft-3d, watercolor). For the hackathon, `storybook-flat` is
-  the only style used; BRAND §10 stays locked.
+- Illustration style picker in P5 using the alternate `styleOptions` shipped
+  in the seed file. For the hackathon, `soft-3d` is the only active style;
+  BRAND section 10 stays locked.

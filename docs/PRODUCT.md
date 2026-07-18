@@ -41,7 +41,7 @@ Behavior: 280 ms crossfade between pages; audio stops on page change; audio repl
 - **P0 PIN gate:** 4 digits; failure = neutral message ("That code doesn't match. Try again.") in `bb-ink-soft` on `bb-sand`; no sound, no red.
 - **P1 Hub:** three tabs — Library / Progress / Settings.
 - **P2 New story wizard:** pick child → situation (category grid: Health, School, Daily life, Social + free-text "Describe your own") → options (length 3–6 pages; check-ins on/off for this story) → Generate.
-- **P3 Generation progress:** three visible steps with BeBoo — "Writing your story… Drawing the pictures… Recording the voice." Polling `GET /api/stories/:id/status`.
+- **P3 Generation progress:** three visible steps with BeBoo — "Writing your story… Drawing the pictures… Recording the voice." Polling `GET /api/stories/:id/status`. If generation fails, show "We couldn't finish this story. Try again." in `bb-ink-soft` on `bb-sand`, with "Try again" and "Read a story from the shelf"; the shelf button opens the seed story matching the selected situation category (or the first seed story). Never present that seed story as the generated story.
 - **P4 Progress dashboard:** per-emotion accuracy bars, detected confusion pairs ("Often mixes frustrated with angry"), stories read count. No child-visible equivalent exists.
 - **P5 Profile & settings:** child form (first name, pronoun, reading level: pre-reader / beginner / reader, interests chips + free text with max 3 active, companion description, "BeBoo", or "none"), sensory preferences (animations, highlighting, check-ins, ambience, narration speed 0.8×/1×, autoplay stays hard-off), PIN change, one-tap delete all data.
 - **Onboarding (first run):** welcome → child form → set PIN → shelf.

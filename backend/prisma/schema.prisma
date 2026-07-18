@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AppConfig {
+  id      Int    @id @default(1)
+  pinHash String
+}
+
+model Child {
+  id           String          @id @default(cuid())
+  firstName    String
+  pronoun      String
+  readingLevel ReadingLevel
+  interests    Json
+  companion    String
+  settings     Json
+  sheetId      String?
+  stories      Story[]
+  results      CheckInResult[]
+  stats        EmotionStat[]
+  createdAt    DateTime        @default(now())
+}
+
+model Story {
+  id                String      @id @default(cuid())
+  child             Child       @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId           String
+  title             String
+  situationCategory String
+  situationText     String
+  characterBlock    String
+  bridgeQuestion    String
+  length            Int
+  checkIns          Boolean
+  status            StoryStatus @default(writing)
+  pages             Page[]
+  createdAt         DateTime    @default(now())
+}
+
+model Page {
+  id        String    @id @default(cuid())
+  story     Story     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   String
+  index     Int
+  text      String
+  scene     String
+  animation Animation
+  imageId   String?
+  audioId   String?
+  timings   Json?
+  checkIn   Json?
+
+  @@unique([storyId, index])
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  kind      MediaKind
+  mime      String
+  bytes     Bytes
+  hash      String    @unique
+  createdAt DateTime  @default(now())
+}
+
+model CheckInResult {
+  id        String   @id @default(cuid())
+  storyId   String
+  page      Int
+  child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId   String
+  emotionId String
+  correct   Boolean
+  attempt   Int
+  createdAt DateTime @default(now())
+}
+
+model EmotionStat {
+  child      Child  @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId    String
+  emotionId  String
+  correct    Int    @default(0)
+  missed     Int    @default(0)
+  confusions Json
+
+  @@id([childId, emotionId])
+}
+
+enum ReadingLevel {
+  pre_reader
+  beginner
+  reader
+}
+
+enum StoryStatus {
+  writing
+  drawing
+  voicing
+  ready
+  failed
+}
+
+enum Animation {
+  zoom_in
+  zoom_out
+  pan_lr
+  none
+}
+
+enum MediaKind {
+  image
+  audio
+}

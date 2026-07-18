@@ -9,7 +9,11 @@ import type {
   EmotionId,
   Story,
   StoryChildProfile,
+  StoryGenerationChildProfile,
+  StoryGenerationInput,
   StoryPageData,
+  StoryStatus,
+  SituationCategory,
   WordTiming,
 } from './types';
 
@@ -35,6 +39,28 @@ interface SeedStory {
 
 interface SeedDocument {
   stories: SeedStory[];
+}
+
+interface ApiStoryPage {
+  page: number;
+  text: string;
+  scene: string;
+  animation: AnimationName;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  timings: WordTiming[];
+  checkIn: CheckIn | null;
+}
+
+interface ApiStory {
+  id: string;
+  title: string;
+  situationCategory: string;
+  childProfile: Omit<StoryChildProfile, 'age'> & { age?: number };
+  characterBlock: string;
+  bridgeQuestion: string;
+  pages: ApiStoryPage[];
+  status?: StoryStatus;
 }
 
 interface MockState {
@@ -68,6 +94,62 @@ const stories: Story[] = seed.stories.map((story) => ({
     imageUrl: `/seed/${story.id}/${page.page}.jpeg`,
   })),
 }));
+
+function toStory(story: ApiStory): Story {
+  const pages = story.pages.map(
+    (page): StoryPageData => ({
+      ...page,
+      imageUrl: page.imageUrl ?? '',
+    }),
+  );
+
+  return {
+    ...story,
+    pages,
+    coverUrl: pages[0]?.imageUrl ?? '',
+  };
+}
+
+async function requestApi<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  headers.set('Accept', 'application/json');
+  if (init?.body) {
+    headers.set('Content-Type', 'application/json');
+  }
+
+  const response = await fetch(path, {
+    ...init,
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with ${response.status}.`);
+  }
+
+  return (await response.json()) as T;
+}
+
+async function listDatabaseStories(childId: string): Promise<Story[]> {
+  try {
+    const response = await requestApi<{ stories: ApiStory[] }>(
+      `/api/stories?childId=${encodeURIComponent(childId)}`,
+    );
+    return response.stories
+      .filter((story) => !story.status || story.status === 'ready')
+      .map(toStory);
+  } catch {
+    return [];
+  }
+}
+
+async function getDatabaseStory(storyId: string): Promise<Story | null> {
+  try {
+    const response = await requestApi<{ story: ApiStory }>(`/api/stories/${encodeURIComponent(storyId)}`);
+    return toStory(response.story);
+  } catch {
+    return null;
+  }
+}
 
 function emptyState(): MockState {
   return {
@@ -170,7 +252,7 @@ function readState(): MockState {
       recentStoryIds: Array.isArray(value.recentStoryIds)
         ? value.recentStoryIds.filter(
             (storyId): storyId is string =>
-              typeof storyId === 'string' && stories.some((story) => story.id === storyId),
+              typeof storyId === 'string' && storyId.length > 0,
           )
         : [],
     };
@@ -199,6 +281,17 @@ function sortByMostRecentlyRead(items: Story[], recentIds: string[]): Story[] {
 
 function makeChildId(): string {
   return `child-${Date.now().toString(36)}`;
+}
+
+function generationChildProfile(child: Child): StoryGenerationChildProfile {
+  return {
+    firstName: child.firstName,
+    pronoun: child.pronoun,
+    readingLevel: child.readingLevel,
+    interests: [...child.interests],
+    companion: child.companion,
+    settings: { ...child.settings },
+  };
 }
 
 /**
@@ -260,21 +353,55 @@ export const api = {
   },
 
   async listStories(): Promise<Story[]> {
-    return sortByMostRecentlyRead(stories, readState().recentStoryIds);
+    const state = readState();
+    const databaseStories = state.child ? await listDatabaseStories(state.child.id) : [];
+    const databaseIds = new Set(databaseStories.map((story) => story.id));
+    const mergedStories = [
+      ...databaseStories,
+      ...stories.filter((story) => !databaseIds.has(story.id)),
+    ];
+
+    return sortByMostRecentlyRead(mergedStories, state.recentStoryIds);
   },
 
   async getStory(storyId: string): Promise<Story | null> {
-    return stories.find((story) => story.id === storyId) ?? null;
+    return stories.find((story) => story.id === storyId) ?? getDatabaseStory(storyId);
   },
 
   async markStoryRead(storyId: string): Promise<void> {
-    if (!stories.some((story) => story.id === storyId)) {
+    if (!storyId) {
       return;
     }
 
     const state = readState();
     const recentStoryIds = [storyId, ...state.recentStoryIds.filter((id) => id !== storyId)];
     writeState({ ...state, recentStoryIds });
+  },
+
+  async generateStory(input: StoryGenerationInput): Promise<string> {
+    const currentChild = readState().child;
+    const childProfile = currentChild?.id === input.childId
+      ? generationChildProfile(currentChild)
+      : input.childProfile;
+    const response = await requestApi<{ storyId: string }>('/api/stories/generate', {
+      body: JSON.stringify({ ...input, ...(childProfile ? { childProfile } : {}) }),
+      method: 'POST',
+    });
+    return response.storyId;
+  },
+
+  async getStoryStatus(storyId: string): Promise<StoryStatus> {
+    const response = await requestApi<{ step: StoryStatus }>(
+      `/api/stories/${encodeURIComponent(storyId)}/status`,
+    );
+    return response.step;
+  },
+
+  async getFallbackSeedStory(category: SituationCategory): Promise<Story> {
+    return (
+      stories.find((story) => story.situationCategory === category) ??
+      stories[0]
+    );
   },
 
   async recordCheckIn(input: CheckInAttemptInput): Promise<void> {

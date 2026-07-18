@@ -79,7 +79,16 @@ All motion sits behind `useReducedMotion()` combining the child profile setting 
 - Disclosure: the parent zone plainly states that stories are AI-generated and narration uses an AI-generated voice (an OpenAI usage-policy requirement). Child screens never mention it.
 
 ## 10. Illustration style (locked — inject verbatim into every image prompt)
-> Flat 2D digital vector illustration in the style of a modern children's picture book series. Simple rounded characters built from soft geometric shapes, slightly large heads, and clearly expressive faces: big oval eyes, visible eyebrows, and simple mouth shapes so the emotion can be read at a glance. Smooth flat color fills, no outlines, very subtle soft shading, no gradients, no texture noise. Calm muted pastel palette of soft teal, warm cream, sand beige, dusty coral and gentle sky blue, low saturation, never neon or harsh primary colors. Soft, even, diffuse lighting with no hard shadows. Eye-level view, one clear focal point, generous negative space, background limited to three or four large simple shapes. Every image looks like a page from the same book, identical character designs and proportions throughout. No text, letters, numbers, or logos anywhere. No photorealism, no 3D render, no busy patterns, no dark or frightening shading, no exaggerated or distorted expressions.
+
+The official illustration style is **soft-3d**. The canonical runtime
+`styleBlock` is defined in `backend/src/lib/images/style.ts`; this approved
+brand contract must stay byte-for-byte aligned with it.
+
+> Soft 3D rendered illustration with a matte clay and felt toy aesthetic, like a gentle stop-motion children's film. Rounded, chunky character shapes with smooth matte surfaces, no plastic shine. Clearly expressive faces with large simple eyes, visible eyebrows, and simple mouth shapes readable at a glance. Calm muted pastel palette of soft teal, warm cream, sand beige and dusty coral, low saturation. Soft diffuse studio lighting, gentle ambient occlusion, no harsh shadows or dramatic contrast. Eye-level camera, one clear focal subject, minimal uncluttered background with three or four large soft shapes. Consistent character design and proportions in every image, like frames from the same film. No text, letters, numbers, or logos anywhere. No photorealistic humans, no uncanny detail, no motion blur, no dark or frightening lighting.
+
+Alternates remain documented but are not selectable in the product: `storybook-flat`
+(flat 2D digital vector picture-book art) and `watercolor` (hand-painted
+watercolor and gouache). Do not use either without an explicit brand change.
 
 ## 11. Ship checklist (run before finishing any screen)
 1. Could anything here startle, rush, test, or confuse a child?

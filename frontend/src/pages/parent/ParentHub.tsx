@@ -5,6 +5,7 @@ import type { Child, Story } from '../../lib/types';
 
 interface ParentHubProps {
   onExit: () => void;
+  onNewStory: () => void;
 }
 
 type ParentTab = 'library' | 'progress' | 'settings';
@@ -24,7 +25,7 @@ function settingValue(value: boolean, onLabel: string, offLabel: string): string
   return value ? onLabel : offLabel;
 }
 
-export function ParentHub({ onExit }: ParentHubProps) {
+export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
   const [model, setModel] = useState<ParentModel | null>(null);
   const [activeTab, setActiveTab] = useState<ParentTab>('library');
 
@@ -110,8 +111,19 @@ export function ParentHub({ onExit }: ParentHubProps) {
             id="library-panel"
             role="tabpanel"
           >
-            <h2 className="m-0 text-[24px] font-extrabold">Story library</h2>
-            <p className="mt-2 text-[16px] text-bb-ink-soft">Stories ready for calm reading together.</p>
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 className="m-0 text-[24px] font-extrabold">Story library</h2>
+                <p className="mt-2 text-[16px] text-bb-ink-soft">Stories ready for calm reading together.</p>
+              </div>
+              <button
+                className="bb-parent-target bg-bb-teal-deep px-4 text-[16px] font-extrabold text-bb-surface"
+                onClick={onNewStory}
+                type="button"
+              >
+                Make a story
+              </button>
+            </div>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {stories.map((story) => (
                 <article className="overflow-hidden rounded-bb bg-bb-surface shadow-sm" key={story.id}>
@@ -193,7 +205,7 @@ export function ParentHub({ onExit }: ParentHubProps) {
                 Gentle ambience: {settingValue(child.settings.ambience, 'on', 'off')}
               </li>
               <li className="rounded-bb bg-bb-sand px-4 py-3">
-                Narration speed: {child.settings.narrationSpeed}×
+                Narration speed: {child.settings.narrationSpeed}x
               </li>
               <li className="rounded-bb bg-bb-sand px-4 py-3">Autoplay: always off</li>
             </ul>

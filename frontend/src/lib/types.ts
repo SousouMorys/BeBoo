@@ -12,6 +12,8 @@ export const emotionIds = [
 export type EmotionId = (typeof emotionIds)[number];
 export type AnimationName = 'zoom-in' | 'zoom-out' | 'pan-lr' | 'none';
 export type ReadingLevel = 'pre-reader' | 'beginner' | 'reader';
+export type StoryStatus = 'writing' | 'drawing' | 'voicing' | 'ready' | 'failed';
+export type SituationCategory = 'health' | 'school' | 'daily-life' | 'social' | 'custom';
 
 export interface WordTiming {
   word: string;
@@ -45,7 +47,7 @@ export interface StoryPageData {
 
 export interface StoryChildProfile {
   name: string;
-  age: number;
+  age?: number;
   readingLevel: ReadingLevel;
   interests: string[];
   companion: string;
@@ -60,6 +62,7 @@ export interface Story {
   pages: StoryPageData[];
   bridgeQuestion: string;
   coverUrl: string;
+  status?: StoryStatus;
 }
 
 export interface ChildSettings {
@@ -101,4 +104,24 @@ export interface CheckInAttemptInput {
 
 export interface CheckInAttempt extends CheckInAttemptInput {
   createdAt: string;
+}
+
+export interface StoryGenerationInput {
+  childId: string;
+  childProfile?: StoryGenerationChildProfile;
+  situation: {
+    category: SituationCategory;
+    text: string;
+  };
+  length: 3 | 4 | 5 | 6;
+  checkIns: boolean;
+}
+
+export interface StoryGenerationChildProfile {
+  firstName: string;
+  pronoun: string;
+  readingLevel: ReadingLevel;
+  interests: string[];
+  companion: string;
+  settings: ChildSettings;
 }
