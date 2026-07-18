@@ -76,6 +76,15 @@ export function Shelf() {
           </div>
         </header>
 
+        <button
+          className="bb-child-target mb-8 flex w-full items-center gap-4 bg-bb-sand px-5 text-left text-bb-ink shadow-sm"
+          onClick={() => navigate('/practice')}
+          type="button"
+        >
+          <BebooMascot expression="calm" size={56} />
+          <span className="text-[20px] font-extrabold">Practice</span>
+        </button>
+
         <section aria-label="My stories" className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6">
           {model.stories.map((story) => (
             <button

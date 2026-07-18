@@ -106,6 +106,22 @@ export interface CheckInAttempt extends CheckInAttemptInput {
   createdAt: string;
 }
 
+export interface FeelingLogInput {
+  childId: string;
+  emotionId: EmotionId;
+}
+
+export interface FeelingCount {
+  emotionId: EmotionId;
+  count: number;
+}
+
+export interface Dashboard {
+  feelings: {
+    last7Days: FeelingCount[];
+  };
+}
+
 export interface StoryGenerationInput {
   childId: string;
   childProfile?: StoryGenerationChildProfile;

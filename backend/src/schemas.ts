@@ -36,6 +36,11 @@ export const childInputSchema = z.object({
   settings: childSettingsSchema,
 });
 
+/** Allows the local-profile bridge to preserve its opaque child id server-side. */
+export const childCreateSchema = childInputSchema.extend({
+  id: recordIdSchema.optional(),
+});
+
 export const childPatchSchema = childInputSchema.partial().refine(
   (value) => Object.keys(value).length > 0,
   'Provide at least one child field to update.',
@@ -122,6 +127,11 @@ export const checkInAttemptSchema = z.object({
   emotionId: emotionIdSchema,
   correct: z.boolean(),
   attempt: z.union([z.literal(1), z.literal(2)]),
+});
+
+export const feelingLogSchema = z.object({
+  childId: recordIdSchema,
+  emotionId: emotionIdSchema,
 });
 
 export type EmotionId = z.infer<typeof emotionIdSchema>;

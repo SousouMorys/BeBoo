@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { BebooMascot } from '../../components/BebooMascot';
+import { EmotionFace } from '../../components/EmotionFace';
 import { api } from '../../lib/api';
-import type { Child, Story } from '../../lib/types';
+import { emotionIds } from '../../lib/types';
+import type { Child, Dashboard, Story } from '../../lib/types';
 
 interface ParentHubProps {
   onExit: () => void;
@@ -12,6 +13,7 @@ type ParentTab = 'library' | 'progress' | 'settings';
 
 interface ParentModel {
   child: Child;
+  dashboard: Dashboard | null;
   stories: Story[];
 }
 
@@ -33,9 +35,17 @@ export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
     let isCurrent = true;
 
     async function loadParentHub() {
-      const [child, stories] = await Promise.all([api.getCurrentChild(), api.listStories()]);
+      const child = await api.getCurrentChild();
+      if (!child || !isCurrent) {
+        return;
+      }
+
+      const [stories, dashboard] = await Promise.all([
+        api.listStories(),
+        api.getDashboard(child.id).catch(() => null),
+      ]);
       if (isCurrent && child) {
-        setModel({ child, stories });
+        setModel({ child, dashboard, stories });
       }
     }
 
@@ -62,7 +72,13 @@ export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
     );
   }
 
-  const { child, stories } = model;
+  const { child, dashboard, stories } = model;
+  const feelingCounts = emotionIds
+    .map((emotionId) => ({
+      emotionId,
+      count: dashboard?.feelings.last7Days.find((feeling) => feeling.emotionId === emotionId)?.count ?? 0,
+    }))
+    .filter((feeling) => feeling.count > 0);
 
   return (
     <main className="min-h-[100dvh] bg-bb-cream px-5 py-8 text-bb-ink sm:px-8 sm:py-12">
@@ -142,17 +158,30 @@ export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
         {activeTab === 'progress' ? (
           <section
             aria-labelledby="progress-tab"
-            className="mt-7 rounded-bb-lg bg-bb-surface px-6 py-10 text-center shadow-sm sm:px-10"
+            className="mt-7 rounded-bb-lg bg-bb-surface p-6 shadow-sm sm:p-8"
             id="progress-panel"
             role="tabpanel"
           >
-            <div className="flex justify-center">
-              <BebooMascot expression="calm" size={112} />
-            </div>
-            <h2 className="mt-5 text-[24px] font-extrabold">Progress will appear here.</h2>
-            <p className="mx-auto mt-3 max-w-md text-[16px] leading-relaxed text-bb-ink-soft">
-              Check-ins stay quiet during story time. This space will show gentle patterns as stories are read.
-            </p>
+            <h2 className="m-0 text-[24px] font-extrabold">Feelings {child.firstName} shared</h2>
+            <p className="mt-1 text-[16px] font-bold text-bb-ink-soft">Last 7 days</p>
+            {feelingCounts.length > 0 ? (
+              <ul aria-label={`Feelings ${child.firstName} shared in the last 7 days`} className="mt-6 flex list-none flex-wrap gap-3 p-0">
+                {feelingCounts.map(({ emotionId, count }) => (
+                  <li
+                    className="flex min-h-11 items-center gap-2 rounded-bb bg-bb-sand px-3 py-2 text-[16px] font-extrabold text-bb-ink"
+                    key={emotionId}
+                  >
+                    <EmotionFace emotion={emotionId} label={`${emotionId} feeling`} size={44} />
+                    <span>{emotionId}</span>
+                    <span aria-label={`${count} shared`} className="text-bb-ink-soft">
+                      {count}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mb-0 mt-6 text-[16px] text-bb-ink-soft">No feelings shared yet.</p>
+            )}
           </section>
         ) : null}
 

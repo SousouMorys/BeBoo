@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db.js';
 import {
-  childInputSchema,
+  childCreateSchema,
   childPatchSchema,
   idParamSchema,
   toPrismaReadingLevel,
@@ -47,17 +47,18 @@ childrenRouter.get(
 childrenRouter.post(
   '/children',
   asyncRoute(async (request, response) => {
-    const input = body(childInputSchema, request);
-    const child = await db.child.create({
-      data: {
-        firstName: input.firstName,
-        pronoun: input.pronoun,
-        readingLevel: toPrismaReadingLevel(input.readingLevel),
-        interests: input.interests,
-        companion: input.companion,
-        settings: { ...input.settings, autoplay: false },
-      },
-    });
+    const input = body(childCreateSchema, request);
+    const data = {
+      firstName: input.firstName,
+      pronoun: input.pronoun,
+      readingLevel: toPrismaReadingLevel(input.readingLevel),
+      interests: input.interests,
+      companion: input.companion,
+      settings: { ...input.settings, autoplay: false },
+    };
+    const child = input.id
+      ? await db.child.upsert({ where: { id: input.id }, create: { id: input.id, ...data }, update: data })
+      : await db.child.create({ data });
     response.status(201).json({ child: childDto(child) });
   }),
 );

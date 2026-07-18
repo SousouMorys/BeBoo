@@ -220,6 +220,14 @@ textarea {
     transform-origin: 25% 82%;
     animation: bb-mascot-wave 200ms ease-in-out both;
   }
+
+  .bb-breathing-in {
+    animation: bb-breathing-in 4s linear both;
+  }
+
+  .bb-breathing-out {
+    animation: bb-breathing-out 4s linear both;
+  }
 }
 
 @keyframes bb-page-crossfade {
@@ -294,6 +302,26 @@ textarea {
   }
 }
 
+@keyframes bb-breathing-in {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.25);
+  }
+}
+
+@keyframes bb-breathing-out {
+  from {
+    transform: scale(1.25);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bb-page-transition,
   .bb-kenburns-zoom-in,
@@ -301,7 +329,9 @@ textarea {
   .bb-kenburns-pan-lr,
   .bb-success-glow,
   .bb-mascot-nod,
-  .bb-mascot-wave .bb-mascot-wave-hand {
+  .bb-mascot-wave .bb-mascot-wave-hand,
+  .bb-breathing-in,
+  .bb-breathing-out {
     animation: none !important;
   }
 

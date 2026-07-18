@@ -6,6 +6,7 @@ A caregiver (parent or teacher) creates a child profile and generates personaliz
 ## 2. Information architecture
 - **Child zone** — the app's default face after onboarding. Shelf + story player. No settings, no text-heavy navigation.
 - **Parent zone** — behind a 4-digit PIN. Creation, library, progress, settings.
+- **Practice** — the child-facing regulation tools and parent feelings summary are specified in [PRACTICE.md](PRACTICE.md).
 
 ## 3. Child pages (build these with the most care)
 

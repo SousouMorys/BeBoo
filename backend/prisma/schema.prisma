@@ -24,6 +24,7 @@ model Child {
   stories      Story[]
   results      CheckInResult[]
   stats        EmotionStat[]
+  feelingLogs  FeelingLog[]
   createdAt    DateTime        @default(now())
 }
 
@@ -89,6 +90,16 @@ model EmotionStat {
   confusions Json
 
   @@id([childId, emotionId])
+}
+
+model FeelingLog {
+  id        String   @id @default(cuid())
+  child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId   String
+  emotionId String
+  createdAt DateTime @default(now())
+
+  @@index([childId, createdAt])
 }
 
 enum ReadingLevel {

@@ -6,7 +6,9 @@ import type {
   CheckInAttemptInput,
   Child,
   ChildInput,
+  Dashboard,
   EmotionId,
+  FeelingLogInput,
   Story,
   StoryChildProfile,
   StoryGenerationChildProfile,
@@ -294,6 +296,33 @@ function generationChildProfile(child: Child): StoryGenerationChildProfile {
   };
 }
 
+async function ensurePracticeChild(childId: string): Promise<boolean> {
+  const child = readState().child;
+  if (!child || child.id !== childId) {
+    return true;
+  }
+
+  try {
+    // The browser profile remains the source of truth for this phase. Practice
+    // mirrors it only when needed so its required server-side FeelingLog exists.
+    await requestApi<{ child: unknown }>('/api/children', {
+      body: JSON.stringify({
+        id: child.id,
+        firstName: child.firstName,
+        pronoun: child.pronoun,
+        readingLevel: child.readingLevel,
+        interests: child.interests,
+        companion: child.companion,
+        settings: child.settings,
+      }),
+      method: 'POST',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The only client data boundary. Phase 1 stores a local mock profile, PIN,
  * recency, and check-in attempts. Phase 3 keeps this interface and swaps the
@@ -414,5 +443,33 @@ export const api = {
       ...state,
       checkInAttempts: [...state.checkInAttempts, attempt],
     });
+  },
+
+  /** A feeling is self-report, not an assessment. A failed request is invisible to the child. */
+  async recordFeeling(input: FeelingLogInput): Promise<void> {
+    if (!(await ensurePracticeChild(input.childId))) {
+      return;
+    }
+
+    try {
+      await requestApi<{ id: string }>('/api/practice/feelings', {
+        body: JSON.stringify(input),
+        method: 'POST',
+      });
+    } catch {
+      // Keep the child flow identical when a network request cannot be saved.
+    }
+  },
+
+  async getDashboard(childId: string): Promise<Dashboard> {
+    if (!(await ensurePracticeChild(childId))) {
+      return { feelings: { last7Days: [] } };
+    }
+
+    try {
+      return await requestApi<Dashboard>(`/api/dashboard/${encodeURIComponent(childId)}`);
+    } catch {
+      return { feelings: { last7Days: [] } };
+    }
   },
 };

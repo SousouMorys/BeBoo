@@ -7,16 +7,19 @@ import express, { type ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { checkInsRouter } from './routes/checkins.js';
 import { childrenRouter } from './routes/children.js';
+import { dashboardRouter } from './routes/dashboard.js';
 import { healthRouter } from './routes/health.js';
 import { failInterruptedStoryPipelines } from './lib/pipeline.js';
 import { mediaRouter } from './routes/media.js';
 import { pinRouter } from './routes/pin.js';
+import { practiceRouter } from './routes/practice.js';
 import { storiesRouter } from './routes/stories.js';
 
 const sourceFile = fileURLToPath(import.meta.url);
 const frontendDist = path.resolve(path.dirname(sourceFile), '../../frontend/dist');
 
-const errorHandler: ErrorRequestHandler = (error, _request, response) => {
+const errorHandler: ErrorRequestHandler = (error, _request, response, next) => {
+  void next;
   if (error instanceof ZodError) {
     response.status(400).json({ error: 'The request has invalid fields.' });
     return;
@@ -42,6 +45,8 @@ export function createApp() {
   app.use('/api', childrenRouter);
   app.use('/api', storiesRouter);
   app.use('/api', checkInsRouter);
+  app.use('/api', practiceRouter);
+  app.use('/api', dashboardRouter);
   app.use('/api', mediaRouter);
   app.use('/api', (_request, response) => response.status(404).json({ error: 'Not found.' }));
   app.use(errorHandler);

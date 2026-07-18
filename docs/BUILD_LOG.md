@@ -219,6 +219,32 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   about $0.02 for four low-quality mini image outputs plus an estimate for
   Terra writing and validation; TTS is excluded.
 
+## 2026-07-18 - Practice section
+
+- Added the fixed Shelf Practice card and C6-C9: the simple practice menu,
+  all-eight-feeling self-report, shared C2a-ready breathing circle, and static
+  BeBoo-hugs-pillow guidance. The feeling acknowledgment is warm and
+  unscored; its two tool buttons remain fixed, and the child flow has no
+  history, sounds, visible timers, countdowns, or follow-up test question.
+- Added `FeelingLog`, the applied Neon migration, Zod-validated
+  `POST /api/practice/feelings`, and seven-day dashboard counts. Practice
+  lazily mirrors the still-local profile to the existing child API only when
+  needed, so a first-run child can persist feelings before generating a story.
+- Added the Parent Progress "Feelings {name} shared" block with the shared
+  EmotionFace chips, counts, and neutral empty state.
+- Verification:
+  - Ran BRAND section 11 on the shelf amendment and C6-C9: the controls meet
+    child target size, wording is literal, all faces use the shared set, the
+    only new motion is the specified 280 ms acknowledgment / 200 ms nod /
+    tap-start 4 s breathing cycle, and reduced motion keeps the circle static
+    with tap-to-advance cues.
+  - Visually reviewed the shelf card, menu, all eight-face grid, breathing
+    start/skip path, and squeeze screen. A temporary non-user test child
+    confirmed `calm:2` and `nervous:1` seven-day dashboard counts and was
+    deleted afterwards; an unsupported ninth emotion returns 400.
+  - `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build`
+    pass. Prisma reports both migrations applied.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
@@ -229,3 +255,6 @@ decisions, anything fixed. High-value ideas that are out of scope go under
 - Illustration style picker in P5 using the alternate `styleOptions` shipped
   in the seed file. For the hackathon, `soft-3d` is the only active style;
   BRAND section 10 stays locked.
+- Convergent branching endings v2 (pre-generated, every path ends calm).
+- Post-story calm-plan prompt on the ending screen.
+- Quiet-break screen.
