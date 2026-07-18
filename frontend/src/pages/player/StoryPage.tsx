@@ -48,7 +48,7 @@ export function StoryPage({
   return (
     <div className="min-h-[100dvh] bg-bb-cream text-bb-ink">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-bb-sand bg-bb-cream">
-        <div className="mx-auto grid h-20 max-w-[560px] grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
+        <div className="bb-child-column grid h-20 grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
           <button
             aria-label="My stories"
             className="bb-child-target inline-flex items-center justify-center bg-bb-surface text-bb-ink shadow-sm"
@@ -67,7 +67,7 @@ export function StoryPage({
       </header>
 
       <main className="pb-28 pt-20">
-        <div className={reducedMotion ? '' : 'bb-page-transition'}>
+        <div className={`bb-child-column ${reducedMotion ? '' : 'bb-page-transition'}`}>
           <div className="h-[56dvh] min-h-[300px] max-h-[540px] overflow-hidden">
             <KenBurnsImage
               alt={page.scene}
@@ -86,7 +86,7 @@ export function StoryPage({
       </main>
 
       <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-bb-sand bg-bb-cream">
-        <div className="mx-auto flex max-w-[560px] items-center justify-between gap-3 px-4 py-3">
+        <div className="bb-child-column flex items-center justify-between gap-3 px-4 py-3">
           <SpeakerButton
             isComplete={narration.isComplete}
             isPlaying={narration.isPlaying}

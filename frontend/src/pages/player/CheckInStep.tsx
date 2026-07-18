@@ -105,7 +105,7 @@ export function CheckInStep({
   return (
     <div className="min-h-[100dvh] bg-bb-cream text-bb-ink">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-bb-sand bg-bb-cream">
-        <div className="mx-auto grid h-20 max-w-[560px] grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
+        <div className="bb-child-column grid h-20 grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
           <button
             aria-label="My stories"
             className="bb-child-target inline-flex items-center justify-center bg-bb-surface text-bb-ink shadow-sm"
@@ -123,7 +123,7 @@ export function CheckInStep({
         </div>
       </header>
 
-      <main className="mx-auto flex min-h-[100dvh] max-w-[560px] flex-col px-4 pb-28 pt-24">
+      <main className="bb-child-column flex min-h-[100dvh] flex-col px-4 pb-28 pt-24">
         <section
           aria-label={`Check-in for page ${pageIndex + 1}`}
           className="rounded-bb bg-bb-surface px-4 py-6 shadow-sm sm:px-6"
@@ -174,7 +174,7 @@ export function CheckInStep({
 
       {isResolved && (
         <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-bb-sand bg-bb-cream">
-          <div className="mx-auto flex max-w-[560px] items-center justify-between gap-3 px-4 py-3">
+          <div className="bb-child-column flex items-center justify-between gap-3 px-4 py-3">
             <div aria-hidden="true" className="h-16 w-[158px]" />
             <BigButton className="min-w-[150px]" onClick={onNext}>
               <span>Next</span>

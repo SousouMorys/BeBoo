@@ -12,7 +12,7 @@ export function PracticeFrame({ children, onBack, backLabel, home = false }: Pra
   return (
     <div className="min-h-[100dvh] bg-bb-cream text-bb-ink">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-bb-sand bg-bb-cream">
-        <div className="mx-auto flex h-20 max-w-[560px] items-center px-3">
+        <div className="bb-child-column flex h-20 items-center px-3">
           <button
             aria-label={backLabel}
             className="bb-child-target inline-flex items-center justify-center bg-bb-surface text-bb-ink shadow-sm"
@@ -32,7 +32,7 @@ export function PracticeFrame({ children, onBack, backLabel, home = false }: Pra
         </div>
       </header>
 
-      <main className="mx-auto flex min-h-[100dvh] max-w-[560px] flex-col px-4 pb-28 pt-24">
+      <main className="bb-child-column flex min-h-[100dvh] flex-col px-4 pb-28 pt-24">
         {children}
       </main>
     </div>

@@ -25,7 +25,7 @@ export function BridgeStep({
   return (
     <div className="min-h-[100dvh] bg-bb-cream text-bb-ink">
       <header className="fixed inset-x-0 top-0 z-20 border-b border-bb-sand bg-bb-cream">
-        <div className="mx-auto grid h-20 max-w-[560px] grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
+        <div className="bb-child-column grid h-20 grid-cols-[64px_1fr_64px] items-center gap-2 px-3">
           <button
             aria-label="My stories"
             className="bb-child-target inline-flex items-center justify-center bg-bb-surface text-bb-ink shadow-sm"
@@ -43,7 +43,7 @@ export function BridgeStep({
         </div>
       </header>
 
-      <main className="mx-auto flex min-h-[100dvh] max-w-[560px] items-center px-4 pb-28 pt-24">
+      <main className="bb-child-column flex min-h-[100dvh] items-center px-4 pb-28 pt-24">
         <section className="w-full rounded-bb bg-bb-surface px-6 py-9 text-center shadow-sm">
           <div className="flex justify-center">
             <BebooMascot expression="calm" reducedMotion={reducedMotion} size={128} />
@@ -53,7 +53,7 @@ export function BridgeStep({
       </main>
 
       <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-bb-sand bg-bb-cream">
-        <div className="mx-auto flex max-w-[560px] justify-end px-4 py-3">
+        <div className="bb-child-column flex justify-end px-4 py-3">
           <BigButton className="min-w-[150px]" onClick={onDone}>Done</BigButton>
         </div>
       </footer>

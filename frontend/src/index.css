@@ -105,6 +105,12 @@ textarea {
 }
 
 @layer components {
+  .bb-child-column {
+    width: 100%;
+    max-width: 42.5rem;
+    margin-inline: auto;
+  }
+
   .bb-child-target {
     min-inline-size: 64px;
     min-block-size: 64px;

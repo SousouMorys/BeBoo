@@ -1,10 +1,10 @@
-import { type ReactNode, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BigButton } from './BigButton';
+import { EmotionFace } from './EmotionFace';
 
 type BreathPhase = 'idle' | 'in' | 'out';
 
 interface BreathingCircleProps {
-  companion?: ReactNode;
   reducedMotion: boolean;
   onComplete: () => void;
 }
@@ -13,7 +13,7 @@ interface BreathingCircleProps {
  * The shared C2a regulation tool. It has no visible duration or cycle count;
  * a child begins it explicitly, and reduced-motion users advance each cue by tap.
  */
-export function BreathingCircle({ companion, reducedMotion, onComplete }: BreathingCircleProps) {
+export function BreathingCircle({ reducedMotion, onComplete }: BreathingCircleProps) {
   const [phase, setPhase] = useState<BreathPhase>('idle');
   const [completedCycles, setCompletedCycles] = useState(0);
 
@@ -52,30 +52,37 @@ export function BreathingCircle({ companion, reducedMotion, onComplete }: Breath
 
   return (
     <section aria-live="polite" className="flex flex-col items-center text-center">
-      <div className="mb-8 flex items-center justify-center gap-4">
+      <div className="mb-8 flex h-56 items-center justify-center">
         <div
           aria-hidden="true"
-          className={`h-44 w-44 rounded-full bg-bb-teal shadow-sm ${reducedMotion ? '' : circleMotion}`}
-        />
-        {companion}
+          className={`relative h-44 w-44 rounded-full bg-bb-teal shadow-sm ${reducedMotion ? '' : circleMotion}`}
+        >
+          <EmotionFace
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+            emotion="calm"
+            size={108}
+          />
+        </div>
       </div>
 
-      {phase === 'idle' ? (
-        <BigButton className="min-w-[220px]" onClick={advance}>
-          Start breathing
-        </BigButton>
-      ) : reducedMotion ? (
-        <button
-          aria-label="Continue breathing"
-          className="bb-child-target min-w-[220px] bg-bb-surface px-6 text-[20px] font-extrabold text-bb-teal-deep shadow-sm"
-          onClick={advance}
-          type="button"
-        >
-          {cue}
-        </button>
-      ) : (
-        <p className="min-h-16 text-[24px] font-extrabold leading-relaxed text-bb-ink">{cue}</p>
-      )}
+      <div className="flex h-16 items-center justify-center">
+        {phase === 'idle' ? (
+          <BigButton className="min-w-[220px]" onClick={advance}>
+            Start breathing
+          </BigButton>
+        ) : reducedMotion ? (
+          <button
+            aria-label="Continue breathing"
+            className="bb-child-target min-w-[220px] bg-bb-surface px-6 text-[20px] font-extrabold text-bb-teal-deep shadow-sm"
+            onClick={advance}
+            type="button"
+          >
+            {cue}
+          </button>
+        ) : (
+          <p className="text-[24px] font-extrabold leading-relaxed text-bb-ink">{cue}</p>
+        )}
+      </div>
     </section>
   );
 }

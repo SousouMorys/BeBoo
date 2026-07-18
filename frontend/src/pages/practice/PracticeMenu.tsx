@@ -26,7 +26,7 @@ export function PracticeMenu({ onHome, onFeelings, onBreathe, onSqueeze }: Pract
             How I feel now
           </button>
           <button
-            className="bb-child-target w-full bg-bb-sand px-6 text-[20px] font-extrabold text-bb-ink shadow-sm"
+            className="bb-child-target w-full bg-bb-surface px-6 text-[20px] font-extrabold text-bb-ink shadow-sm"
             onClick={onBreathe}
             type="button"
           >

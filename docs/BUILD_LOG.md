@@ -245,6 +245,21 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   - `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build`
     pass. Prisma reports both migrations applied.
 
+## 2026-07-18 - Practice and child-layout polish
+
+- Made the three Practice choices equal `bb-surface` cards, and returned the
+  squeeze guidance to the same regular text weight as story copy.
+- Centered the breathing exercise on a teal BeBoo body with the shared calm
+  face. Its fixed cue slot prevents layout movement when a child starts;
+  normal motion remains 4 s in / 4 s out for three cycles and reduced motion
+  remains static with tap-to-advance cues.
+- Added the shared 680 px child-zone column across Shelf, Practice, and all
+  player steps. Story art now fills that column rather than the whole wide
+  viewport.
+- Verification: visual review of Practice, breathing, squeeze, and the wide
+  player stage; `npm run typecheck`, `npm run lint`, `npm run test`, and
+  `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

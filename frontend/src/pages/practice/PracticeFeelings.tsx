@@ -113,7 +113,7 @@ export function PracticeFeelings({
 
       {selectedEmotion ? (
         <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-bb-sand bg-bb-cream">
-          <div className="mx-auto grid max-w-[560px] grid-cols-2 gap-3 px-4 py-3">
+          <div className="bb-child-column grid grid-cols-2 gap-3 px-4 py-3">
             <BigButton className="min-w-0 px-3 text-[18px]" onClick={onBreathe}>
               Breathe with BeBoo
             </BigButton>

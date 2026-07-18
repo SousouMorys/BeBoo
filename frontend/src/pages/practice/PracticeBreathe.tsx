@@ -40,7 +40,6 @@ export function PracticeBreathe({ childPrefersReducedMotion, onBack }: PracticeB
         ) : (
           <div className="mt-8">
             <BreathingCircle
-              companion={<BebooMascot expression="calm" size={96} />}
               key={session}
               onComplete={() => setIsComplete(true)}
               reducedMotion={reducedMotion}

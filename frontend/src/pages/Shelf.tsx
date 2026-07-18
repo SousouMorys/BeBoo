@@ -38,7 +38,7 @@ export function Shelf() {
   if (model === undefined) {
     return (
       <main aria-busy="true" className="min-h-[100dvh] bg-bb-cream px-6 py-10">
-        <div className="mx-auto flex max-w-md items-center gap-5">
+        <div className="bb-child-column flex items-center gap-5">
           <BebooMascot expression="calm" />
           <div aria-hidden="true" className="h-16 flex-1 rounded-bb bg-bb-sand" />
         </div>
@@ -52,7 +52,7 @@ export function Shelf() {
 
   return (
     <main className="min-h-[100dvh] bg-bb-cream px-5 py-8 text-bb-ink sm:px-8 sm:py-12">
-      <div className="relative mx-auto max-w-3xl">
+      <div className="bb-child-column relative">
         <button
           aria-label="Grown-up area"
           className="bb-parent-target absolute right-0 top-0 inline-flex items-center justify-center bg-bb-sand text-bb-ink-soft"
