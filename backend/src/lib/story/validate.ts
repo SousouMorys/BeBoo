@@ -4,6 +4,7 @@ import { withModelRetry } from '../modelRetry.js';
 import {
   emotionIds,
   generatedStorySchema,
+  type EmotionId,
   type GeneratedStory,
   type ReadingLevel,
 } from '../../schemas.js';
@@ -14,6 +15,7 @@ export interface StoryValidationInput {
   length: number;
   readingLevel: ReadingLevel;
   checkIns: boolean;
+  targetEmotions?: readonly EmotionId[];
 }
 
 export interface StoryValidationResult {
@@ -67,6 +69,25 @@ function includesWord(text: string, word: string): boolean {
   return new RegExp(`\\b${word}\\b`, 'i').test(text);
 }
 
+/** Image metadata is not child-facing copy, so do not apply the brand lexicon to it. */
+function childFacingCopy(story: GeneratedStory): string {
+  return [
+    story.title,
+    story.bridgeQuestion,
+    ...story.pages.flatMap((page) => [
+      page.text,
+      ...(page.checkIn
+        ? [
+            page.checkIn.question,
+            ...page.checkIn.options.map((option) => option.label),
+            page.checkIn.scaffold,
+            page.checkIn.reveal,
+          ]
+        : []),
+    ]),
+  ].join('\n');
+}
+
 function validatePageBudgets(story: GeneratedStory, input: StoryValidationInput): string[] {
   const reasons: string[] = [];
   const [minimum, maximum] = sentenceLimits[input.readingLevel];
@@ -90,16 +111,12 @@ function validatePageBudgets(story: GeneratedStory, input: StoryValidationInput)
 }
 
 function validateLexicon(story: GeneratedStory): string[] {
-  const allCopy = JSON.stringify(story).toLowerCase();
+  const allCopy = childFacingCopy(story).toLowerCase();
   const reasons = bannedTerms
     .filter((term) => includesWord(allCopy, term))
     .map((term) => `Banned term found: "${term}".`);
 
-  story.pages.forEach((page) => {
-    if (/\b[A-Z]{2,}\b/.test(page.text)) {
-      reasons.push(`Page ${page.page} includes all-caps child-facing copy.`);
-    }
-  });
+  if (/\b[A-Z]{2,}\b/.test(allCopy)) reasons.push('Story includes all-caps child-facing copy.');
   return reasons;
 }
 
@@ -158,6 +175,27 @@ const modelResultSchema = z.object({
   reasons: z.array(z.string()),
 });
 
+function modelReviewPrompt(story: GeneratedStory, input: StoryValidationInput): string {
+  const targetEmotions = input.targetEmotions?.join(', ') || 'the emotions central to this story';
+
+  return `You are a precise, conservative reviewer for a calm social story for a child.
+
+A deterministic validator has already confirmed the JSON shape, exactly ${input.length} pages, sentence and word budgets for the ${input.readingLevel} level, child-facing lexicon, option uniqueness, and check-in IDs. Review only the qualitative checklist below. Mark invalid only for a clear, specific violation. Do not invent extra requirements or reject ordinary literal language.
+
+Checklist:
+1. The prose is warm, concrete, literal, present tense, and has no idiom, metaphor, sarcasm, or wordplay.
+2. The arc is clear: situation, helpful choices using “can,” then a calm positive ending with reassurance or pride.
+3. Each named central feeling has a visible body cue in the page text or scene.
+4. The requested target emotions are ${targetEmotions}. For a check-in, only correctId is the featured emotion; its other options are distractors and need no body cue or text mention. Each check-in matches its page emotion; its scaffold and reveal point to a cue visibly present in that scene.
+5. Nothing is frightening, shaming, coercive, or framed as a negative surprise.
+6. Each scene stays eye-level, concrete, and has one focal point with no text, letters, numbers, or logos.
+
+Scenes and characterBlock are internal illustration metadata, not child-facing prose. A scene may say “no text” when protecting image generation; that is not a lexicon violation. Return valid=true with an empty reasons array when this story clearly meets the checklist. If invalid, give concise, actionable reasons only.
+
+Story to review:
+${JSON.stringify(story)}`;
+}
+
 /** Runs the qualitative STORY_RULES section 5 pass after deterministic validation. */
 export async function validateStoryWithModel(
   story: GeneratedStory,
@@ -171,7 +209,7 @@ export async function validateStoryWithModel(
   const response = await withModelRetry('story validation', () =>
     validator.responses.create({
       model: 'gpt-5.6-terra',
-      input: `Review this generated social story against STORY_RULES section 5. Check literal language, arc, visible body cues for featured emotions, check-in cues in scenes, safety, and scene focus. Return only JSON: {"valid": boolean, "reasons": string[]}.\n\n${JSON.stringify(story)}`,
+      input: modelReviewPrompt(story, input),
       text: {
         format: {
           type: 'json_schema',
@@ -200,5 +238,11 @@ export async function validateStoryWithModel(
   if (!parsed.success) {
     return { valid: false, reasons: ['The story review did not match the required format.'] };
   }
-  return parsed.data.valid ? local : { valid: false, reasons: parsed.data.reasons };
+  if (parsed.data.valid) return local;
+  return {
+    valid: false,
+    reasons: parsed.data.reasons.length > 0
+      ? parsed.data.reasons
+      : ['The story review found an issue. Recheck every qualitative rule and return a complete corrected story.'],
+  };
 }

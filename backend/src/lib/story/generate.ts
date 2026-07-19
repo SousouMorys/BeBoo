@@ -73,11 +73,16 @@ const storyResponseSchema = {
   },
 } as const;
 
-function revisionPrompt(input: GenerateStoryInput, reasons: string[]): string {
+function revisionPrompt(
+  input: GenerateStoryInput,
+  reasons: string[],
+  previousDraft?: GeneratedStory,
+): string {
   const base = buildStoryPrompt(input);
   if (reasons.length === 0) return base;
 
-  return `${base}\n\nREVISION REQUIRED\nThe prior draft did not pass review. Return a complete replacement JSON object and fix every issue:\n- ${reasons.join('\n- ')}`;
+  const draft = previousDraft ? `\n\nPRIOR DRAFT\n${JSON.stringify(previousDraft)}` : '';
+  return `${base}\n\nREVISION REQUIRED\nThe prior draft did not pass review. Return a complete replacement JSON object and fix every issue:\n- ${reasons.join('\n- ')}${draft}`;
 }
 
 function readingLevelForValidation(level: ReadingLevel): ReadingLevel {
@@ -88,12 +93,13 @@ function readingLevelForValidation(level: ReadingLevel): ReadingLevel {
 export async function generateStory(input: GenerateStoryInput): Promise<GeneratedStory> {
   const writer = getOpenAI() as unknown as StoryWriterClient;
   let reasons: string[] = [];
+  let previousDraft: GeneratedStory | undefined;
 
   for (let attempt = 0; attempt <= maxValidationRetries; attempt += 1) {
     const response = await withModelRetry(`story writing attempt ${attempt + 1}`, () =>
       writer.responses.create({
         model: 'gpt-5.6-terra',
-        input: revisionPrompt(input, reasons),
+        input: revisionPrompt(input, reasons, previousDraft),
         text: {
           format: {
             type: 'json_schema',
@@ -110,23 +116,33 @@ export async function generateStory(input: GenerateStoryInput): Promise<Generate
       candidate = JSON.parse(response.output_text);
     } catch (error) {
       reasons = [`The response was not valid JSON: ${errorMessage(error)}`];
+      console.warn(`[story] draft ${attempt + 1} rejected: ${reasons.join(' ')}`);
       continue;
     }
 
     const parsed = generatedStorySchema.safeParse(candidate);
     if (!parsed.success) {
-      reasons = parsed.error.issues.map((issue) => issue.message);
+      reasons = parsed.error.issues.map((issue) => {
+        const path = issue.path.length > 0 ? `${issue.path.join('.')}: ` : '';
+        return `${path}${issue.message}`;
+      });
+      console.warn(`[story] draft ${attempt + 1} rejected: ${reasons.join(' ')}`);
       continue;
     }
+    previousDraft = parsed.data;
 
     const validation = await validateStoryWithModel(parsed.data, {
       length: input.length,
       readingLevel: readingLevelForValidation(input.readingLevel),
       checkIns: input.checkIns,
+      targetEmotions: input.targetEmotions,
     });
     if (validation.valid) return parsed.data;
     reasons = validation.reasons;
+    console.warn(`[story] draft ${attempt + 1} rejected: ${reasons.join(' ')}`);
   }
 
-  throw new Error(`Story generation did not pass validation after ${maxValidationRetries + 1} drafts.`);
+  throw new Error(
+    `Story generation did not pass validation after ${maxValidationRetries + 1} drafts. ${reasons.join(' ')}`,
+  );
 }

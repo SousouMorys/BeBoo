@@ -260,6 +260,23 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   player stage; `npm run typecheck`, `npm run lint`, `npm run test`, and
   `npm run build` pass.
 
+## 2026-07-19 - Story-generation validation repair
+
+- Fixed false rejection of otherwise valid generated stories: Brand lexicon
+  checks now cover child-visible copy only, not internal character and scene
+  metadata (which may correctly say "no text").
+- Made the Terra reviewer self-contained and conservative, with the actual
+  qualitative rubric, target-emotion context, and explicit treatment of
+  check-in distractors. Empty invalid reviews now yield actionable revision
+  feedback; each retry also receives the prior valid-JSON draft.
+- Clarified the strict JSON contract: every page includes `checkIn`, using
+  `null` where no check-in exists. Added focused regression coverage for the
+  metadata lexicon boundary, reviewer rubric, empty-review recovery, and
+  null check-ins.
+- Verification: a text-only live `gpt-5.6-terra` smoke run completed a
+  three-page story with three check-ins; `npm run typecheck`, `npm run lint`,
+  `npm run test`, and `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

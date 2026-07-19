@@ -29,7 +29,7 @@ export function buildStoryPrompt(input: StoryPromptInput): string {
     ? `
 CHECK-INS
 - After each page that shows a target emotion (the final page included): question (<= 8 words), 3 options from [happy, sad, angry, scared, calm, nervous, proud, disappointed], one correctId matching the text, a scaffold line pointing at a visible cue, and a reveal line stating the answer warmly with the cue.`
-    : '\nCHECK-INS\n- Do not include check-ins on any page.';
+    : '\nCHECK-INS\n- Do not create a check-in on any page. Set checkIn to null on every page.';
 
   return `You write calm, literal social stories for autistic children aged 4-10.
 Follow every rule. The reader is ${input.firstName} (${input.pronoun}), reading level
@@ -51,6 +51,10 @@ SCENES (one per page)
 
 ANIMATION (one per page)
 - Choose from zoom-in | zoom-out | pan-lr | none using the pacing rules: zoom-in for arriving/noticing, pan-lr for journeys, zoom-out for relief and endings, none for quiet or big-feeling pages (stillness lowers load exactly when the content is heaviest).${checkIns}
+
+JSON OUTPUT
+- Every page must include a checkIn field. Use null when that page has no check-in.
+- In child-facing copy (title, page text, bridge, and check-ins), never use: quiz, test, question round, wrong, incorrect, no, oops, you win, score, points, error, empty, nothing here, replay level, retry.
 
 BRIDGE
 - bridgeQuestion: one or two short questions (each <= 8 words) that open a conversation with the grown-up, for example: "Have you ever felt like ${input.firstName}? What helps you feel calm?"`;

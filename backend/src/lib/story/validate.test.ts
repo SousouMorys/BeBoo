@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { GeneratedStory } from '../../schemas.js';
-import { validateStoryLocally } from './validate.js';
+import { buildStoryPrompt } from './prompt.js';
+import { validateStoryLocally, validateStoryWithModel } from './validate.js';
 
 const validStory: GeneratedStory = {
   title: 'Sami visits the dentist',
@@ -50,5 +51,59 @@ describe('validateStoryLocally', () => {
     story.pages[1].text = 'This is a quiz. Sami can hold his train. His hands stay close together.';
 
     expect(validateStoryLocally(story, input).reasons).toContain('Banned term found: "quiz".');
+  });
+
+  it('does not apply child-facing lexicon rules to scene metadata', () => {
+    const story = structuredClone(validStory);
+    story.pages[0].scene = 'Sami stands outside a dentist office. No text appears on the building.';
+
+    expect(validateStoryLocally(story, input)).toEqual({ valid: true, reasons: [] });
+  });
+
+  it('gives the model reviewer the complete qualitative rubric', async () => {
+    let receivedRequest: unknown;
+    const client = {
+      responses: {
+        create: async (request: unknown) => {
+          receivedRequest = request;
+          return { output_text: '{"valid":true,"reasons":[]}' };
+        },
+      },
+    };
+
+    await expect(validateStoryWithModel(validStory, input, client)).resolves.toEqual({ valid: true, reasons: [] });
+    expect(JSON.stringify(receivedRequest)).toContain('Mark invalid only for a clear, specific violation.');
+    expect(JSON.stringify(receivedRequest)).toContain('Scenes and characterBlock are internal illustration metadata');
+  });
+
+  it('turns an unhelpful invalid model review into revision feedback', async () => {
+    const client = {
+      responses: {
+        create: async () => ({ output_text: '{"valid":false,"reasons":[]}' }),
+      },
+    };
+
+    await expect(validateStoryWithModel(validStory, input, client)).resolves.toEqual({
+      valid: false,
+      reasons: ['The story review found an issue. Recheck every qualitative rule and return a complete corrected story.'],
+    });
+  });
+
+  it('requires null check-ins when check-ins are off', () => {
+    const prompt = buildStoryPrompt({
+      firstName: 'Sami',
+      pronoun: 'they/them',
+      readingLevel: 'beginner',
+      interests: [],
+      companion: 'BeBoo',
+      situationCategory: 'health',
+      situationText: 'A dentist visit',
+      length: 3,
+      checkIns: false,
+      targetEmotions: ['nervous', 'calm'],
+    });
+
+    expect(prompt).toContain('Set checkIn to null on every page.');
+    expect(prompt).toContain('Every page must include a checkIn field.');
   });
 });
