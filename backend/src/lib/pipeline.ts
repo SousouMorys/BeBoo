@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { db } from '../db.js';
 import { errorMessage } from './modelRetry.js';
+import { voiceStoryPages } from './audio/tts.js';
 import { drawStoryPages } from './images/pages.js';
 import { generateStory } from './story/generate.js';
 
@@ -67,11 +68,6 @@ async function writeStory(storyId: string): Promise<void> {
   });
 }
 
-/** Audio arrives in the next phase; keeping this explicit preserves the pipeline contract. */
-async function voiceStory(): Promise<void> {
-  await Promise.resolve();
-}
-
 async function setStatus(storyId: string, status: 'writing' | 'drawing' | 'voicing' | 'ready'): Promise<void> {
   await db.story.update({ where: { id: storyId }, data: { status } });
 }
@@ -106,7 +102,7 @@ export async function runStoryPipeline(storyId: string): Promise<void> {
 
     stage = 'voicing';
     await setStatus(storyId, stage);
-    await voiceStory();
+    await voiceStoryPages(storyId);
 
     await setStatus(storyId, 'ready');
   } catch (error) {

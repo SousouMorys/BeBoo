@@ -30,6 +30,7 @@ export function StoryPage({
   onNext,
 }: StoryPageProps) {
   const narration = useNarration({
+    audioUrl: page.audioUrl,
     text: page.text,
     timings: page.timings,
     playbackRate,

@@ -1,78 +1,151 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  hasUsableNarrationTimings,
+  proportionalNarrationTimings,
+  wordIndexAtTime,
+} from '../lib/narration';
 import type { WordTiming } from '../lib/types';
-
-const millisecondsPerWord = 460;
-
-function wordsIn(text: string): string[] {
-  return text.trim().split(/\s+/).filter(Boolean);
-}
 
 interface NarrationOptions {
   text: string;
   timings: WordTiming[];
+  audioUrl: string | null;
   playbackRate: number;
 }
 
-export function useNarration({ text, timings, playbackRate }: NarrationOptions) {
-  const words = useMemo(() => wordsIn(text), [text]);
-  const usableTimings = useMemo(
-    () =>
-      timings.length === words.length &&
-      timings.every((timing) => timing.start >= 0 && timing.end >= timing.start),
-    [timings, words.length],
-  );
-  const durationMs = useMemo(() => {
-    if (usableTimings && timings.length > 0) {
-      return timings[timings.length - 1].end * 1000;
-    }
-
-    return words.length * millisecondsPerWord;
-  }, [timings, usableTimings, words.length]);
-
-  const elapsedRef = useRef(0);
+export function useNarration({ text, timings, audioUrl, playbackRate }: NarrationOptions) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const elapsedSecondsRef = useRef(0);
+  const playbackRateRef = useRef(playbackRate);
+  const timingsRef = useRef<WordTiming[]>([]);
+  const [mediaDuration, setMediaDuration] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeWordIndex, setActiveWordIndex] = useState(-1);
   const [isComplete, setIsComplete] = useState(false);
 
-  const indexForElapsed = useCallback(
-    (elapsedMs: number): number => {
-      if (words.length === 0) {
-        return -1;
-      }
+  playbackRateRef.current = playbackRate;
 
-      if (usableTimings) {
-        const elapsedSeconds = elapsedMs / 1000;
-        const timedIndex = timings.findIndex(
-          (timing) => elapsedSeconds >= timing.start && elapsedSeconds < timing.end,
-        );
+  const resolvedTimings = useMemo(() => {
+    if (hasUsableNarrationTimings(text, timings)) {
+      return timings;
+    }
 
-        return timedIndex === -1 ? words.length - 1 : timedIndex;
-      }
+    // A generated page waits for its real duration before using a proportional map.
+    // Seed stories deliberately have no audio, so they keep their visual fallback.
+    if (audioUrl && mediaDuration === null) {
+      return [];
+    }
 
-      return Math.min(words.length - 1, Math.floor(elapsedMs / millisecondsPerWord));
-    },
-    [timings, usableTimings, words.length],
-  );
+    return proportionalNarrationTimings(text, mediaDuration);
+  }, [audioUrl, mediaDuration, text, timings]);
+  const fallbackDuration = resolvedTimings[resolvedTimings.length - 1]?.end ?? 0;
+  timingsRef.current = resolvedTimings;
+
+  const setWordFromMediaTime = useCallback((currentTime: number) => {
+    const nextIndex = wordIndexAtTime(timingsRef.current, currentTime);
+    setActiveWordIndex((currentIndex) =>
+      currentIndex === nextIndex ? currentIndex : nextIndex,
+    );
+  }, []);
 
   useEffect(() => {
-    if (!isPlaying || durationMs === 0) {
+    elapsedSecondsRef.current = 0;
+    setMediaDuration(null);
+    setIsPlaying(false);
+    setActiveWordIndex(-1);
+    setIsComplete(false);
+
+    if (!audioUrl) {
+      audioRef.current = null;
+      return undefined;
+    }
+
+    const audio = new Audio(audioUrl);
+    audio.preload = 'metadata';
+    audio.playbackRate = playbackRateRef.current;
+
+    const onLoadedMetadata = () => {
+      setMediaDuration(Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null);
+    };
+    const onPlay = () => {
+      setIsPlaying(true);
+      setIsComplete(false);
+    };
+    const onPause = () => setIsPlaying(false);
+    const onEnded = () => {
+      elapsedSecondsRef.current = audio.duration;
+      setWordFromMediaTime(audio.duration);
+      setIsPlaying(false);
+      setIsComplete(true);
+    };
+    const onError = () => setIsPlaying(false);
+
+    audio.addEventListener('loadedmetadata', onLoadedMetadata);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', onError);
+    audioRef.current = audio;
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', onError);
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      if (audioRef.current === audio) {
+        audioRef.current = null;
+      }
+    };
+  }, [audioUrl, setWordFromMediaTime, text]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
+
+  useEffect(() => {
+    if (!audioUrl || !isPlaying) {
+      return undefined;
+    }
+
+    let animationFrame = 0;
+    const tick = () => {
+      const audio = audioRef.current;
+      if (!audio || audio.paused) {
+        return;
+      }
+
+      setWordFromMediaTime(audio.currentTime);
+      animationFrame = window.requestAnimationFrame(tick);
+    };
+
+    tick();
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [audioUrl, isPlaying, setWordFromMediaTime]);
+
+  useEffect(() => {
+    if (audioUrl || !isPlaying || fallbackDuration <= 0) {
       return undefined;
     }
 
     let animationFrame = 0;
     const startedAt = window.performance.now();
-    const elapsedAtStart = elapsedRef.current;
-
+    const elapsedAtStart = elapsedSecondsRef.current;
     const tick = (now: number) => {
-      const elapsedMs = Math.min(
-        durationMs,
-        elapsedAtStart + (now - startedAt) * playbackRate,
+      const elapsedSeconds = Math.min(
+        fallbackDuration,
+        elapsedAtStart + ((now - startedAt) / 1000) * playbackRate,
       );
-      elapsedRef.current = elapsedMs;
-      const nextIndex = indexForElapsed(elapsedMs);
-      setActiveWordIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
+      elapsedSecondsRef.current = elapsedSeconds;
+      setWordFromMediaTime(elapsedSeconds);
 
-      if (elapsedMs >= durationMs) {
+      if (elapsedSeconds >= fallbackDuration) {
         setIsPlaying(false);
         setIsComplete(true);
         return;
@@ -82,54 +155,63 @@ export function useNarration({ text, timings, playbackRate }: NarrationOptions) 
     };
 
     animationFrame = window.requestAnimationFrame(tick);
-
     return () => window.cancelAnimationFrame(animationFrame);
-  }, [durationMs, indexForElapsed, isPlaying, playbackRate]);
+  }, [audioUrl, fallbackDuration, isPlaying, playbackRate, setWordFromMediaTime]);
 
-  useEffect(() => {
-    elapsedRef.current = 0;
-    setIsPlaying(false);
-    setActiveWordIndex(-1);
-    setIsComplete(false);
-  }, [text]);
+  const toggle = useCallback(() => {
+    if (audioUrl) {
+      const audio = audioRef.current;
+      if (!audio) {
+        return;
+      }
 
-  const play = useCallback(() => {
-    if (durationMs === 0) {
+      if (!audio.paused) {
+        audio.pause();
+        return;
+      }
+
+      if (audio.ended || isComplete) {
+        audio.currentTime = 0;
+        elapsedSecondsRef.current = 0;
+        setActiveWordIndex(-1);
+        setIsComplete(false);
+      }
+
+      audio.playbackRate = playbackRate;
+      void audio.play().catch(() => setIsPlaying(false));
       return;
     }
 
-    if (isComplete || elapsedRef.current >= durationMs) {
-      elapsedRef.current = 0;
+    if (isPlaying) {
+      setIsPlaying(false);
+      return;
+    }
+
+    if (fallbackDuration <= 0) {
+      return;
+    }
+
+    if (isComplete || elapsedSecondsRef.current >= fallbackDuration) {
+      elapsedSecondsRef.current = 0;
       setActiveWordIndex(-1);
       setIsComplete(false);
     }
 
     setIsPlaying(true);
-  }, [durationMs, isComplete]);
-
-  const pause = useCallback(() => setIsPlaying(false), []);
-
-  const toggle = useCallback(() => {
-    if (isPlaying) {
-      pause();
-      return;
-    }
-
-    play();
-  }, [isPlaying, pause, play]);
+  }, [audioUrl, fallbackDuration, isComplete, isPlaying, playbackRate]);
 
   const stop = useCallback(() => {
-    elapsedRef.current = 0;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    elapsedSecondsRef.current = 0;
     setIsPlaying(false);
     setActiveWordIndex(-1);
     setIsComplete(false);
   }, []);
 
-  return {
-    activeWordIndex,
-    isComplete,
-    isPlaying,
-    stop,
-    toggle,
-  };
+  return { activeWordIndex, isComplete, isPlaying, stop, toggle };
 }

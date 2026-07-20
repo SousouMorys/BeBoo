@@ -277,6 +277,28 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   three-page story with three check-ins; `npm run typecheck`, `npm run lint`,
   `npm run test`, and `npm run build` pass.
 
+## 2026-07-20 - Synchronized AI narration
+
+- Replaced the voicing pass-through with a real `gpt-4o-mini-tts` stage.
+  Every newly generated page now stores a calm, consistent-voice MP3 as a
+  hashed `Media` record; `marin` is used by default and `cedar` is the
+  story-wide fallback when the default voice is unavailable.
+- Added Whisper word-timestamp alignment with the required 90% match and
+  monotonicity checks. A complete source-word map is saved when trustworthy;
+  otherwise the player receives proportional timings rather than making a
+  story fail solely because transcription timing was unavailable.
+- Updated child playback to use `HTMLAudioElement.currentTime` as the
+  karaoke clock. The fixed speaker remains tap-only, pauses/replays normally,
+  and client-side `audio.playbackRate` keeps 0.8x narration synchronized.
+  Seed stories retain their existing silent visual fallback.
+- Verification: the BRAND section 11 C2 checks remain satisfied (no
+  autoplay, no new sound trigger or child-facing error, fixed controls, and
+  literal labels). A live four-page generated story received four MP3s and
+  four timing maps; each media response returned `audio/mpeg`, immutable
+  one-year caching, and non-empty audio bytes. Browser playback started only
+  after the speaker tap and showed a live highlighted word. `npm run
+  typecheck`, `npm run lint`, `npm run test`, and `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
