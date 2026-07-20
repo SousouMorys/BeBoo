@@ -175,8 +175,9 @@ BRIDGE
   `IMAGE_MODEL=gpt-image-2`, and `IMAGE_QUALITY=high`.
 - Both character-sheet generation and page-edit calls use `IMAGE_QUALITY`.
 - Reference-image fidelity: GPT Image 2 applies high input fidelity
-  automatically, so its page-edit request must omit `input_fidelity`. Other
-  supported page-edit models receive `input_fidelity: "high"` to preserve the
+  automatically, so its page-edit request must omit `input_fidelity`.
+  `gpt-image-1-mini` also rejects that parameter. Only `gpt-image-1` and
+  `gpt-image-1.5` page edits receive `input_fidelity: "high"` to preserve the
   character sheet's visual identity.
 - Draw page images with a concurrency limit of 3. A page retries independently;
   if any page still fails, keep the existing story `failed` state and its calm

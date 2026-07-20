@@ -113,8 +113,9 @@ existing calm failed/retry state rather than presenting a partial story.
 Page-image cache keys are derived from
 `hash(styleBlock + characterBlock + scene + model + quality)`. Page edits use
 the saved character sheet as their reference: GPT Image 2 applies high input
-fidelity automatically, so its request omits `input_fidelity`; other supported
-image-edit models send `input_fidelity: "high"` for character consistency.
+fidelity automatically, so its request omits `input_fidelity`.
+`gpt-image-1-mini` also rejects that parameter; only `gpt-image-1` and
+`gpt-image-1.5` send `input_fidelity: "high"` for character consistency.
 
 ## Architecture
 

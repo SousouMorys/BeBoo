@@ -4,6 +4,14 @@ const narrationVoices = ['marin', 'cedar'] as const;
 export type ImageQuality = (typeof imageQualities)[number];
 export type NarrationVoice = (typeof narrationVoices)[number];
 
+/**
+ * This edit parameter is model-specific: mini rejects it and GPT Image 2
+ * already preserves reference images at high fidelity without accepting it.
+ */
+export function supportsExplicitImageInputFidelity(model: string): boolean {
+  return model === 'gpt-image-1' || model.startsWith('gpt-image-1.5');
+}
+
 function envValue(name: string, fallback: string): string {
   const value = process.env[name]?.trim();
   return value || fallback;

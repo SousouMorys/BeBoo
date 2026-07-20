@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { toFile } from 'openai';
-import { generationConfig } from '../../config.js';
+import { generationConfig, supportsExplicitImageInputFidelity } from '../../config.js';
 import { db } from '../../db.js';
 import { getOpenAI } from '../../openai.js';
 import { errorMessage, withModelRetry } from '../modelRetry.js';
@@ -20,11 +20,6 @@ function imageBytes(response: { data?: Array<{ b64_json?: string | null }> }): B
   }
 
   return Buffer.from(encoded, 'base64');
-}
-
-/** GPT Image 2 applies high reference fidelity itself and rejects this legacy edit parameter. */
-function usesBuiltInHighFidelity(model: string): boolean {
-  return model.startsWith('gpt-image-2');
 }
 
 type PageImageJob = {
@@ -68,9 +63,9 @@ async function drawPageImage(
       size: '1024x1024' as const,
     };
     return getOpenAI().images.edit(
-      usesBuiltInHighFidelity(imageModel)
-        ? request
-        : { ...request, input_fidelity: 'high' },
+      supportsExplicitImageInputFidelity(imageModel)
+        ? { ...request, input_fidelity: 'high' }
+        : request,
     );
   });
   const media = await db.media.upsert({

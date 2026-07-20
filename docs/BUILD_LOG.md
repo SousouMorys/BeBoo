@@ -349,6 +349,17 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   fixed Whisper rationale. `npm run typecheck`, `npm run lint`, `npm run test`,
   and `npm run build` pass.
 
+## 2026-07-20 - GPT Image mini fidelity compatibility repair
+
+- Corrected the page-edit capability gate after the default
+  `gpt-image-1-mini` returned a 400 for `input_fidelity: "high"`. Explicit
+  fidelity is now sent only to `gpt-image-1` and `gpt-image-1.5`; mini and
+  GPT Image 2 omit it. GPT Image 2 retains its automatic high-fidelity
+  reference handling.
+- Added unit coverage for the three capability branches and corrected the
+  README and STORY_RULES compatibility notes so the default development model
+  is accurately documented.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
