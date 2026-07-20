@@ -19,8 +19,19 @@ const sentenceBudgets: Record<ReadingLevel, string> = {
   reader: '3-4',
 };
 
+const targetSentenceCounts: Record<ReadingLevel, number> = {
+  'pre-reader': 1,
+  beginner: 2,
+  reader: 3,
+};
+
 export function sentenceBudgetFor(readingLevel: ReadingLevel): string {
   return sentenceBudgets[readingLevel];
+}
+
+function sentenceFormatInstruction(readingLevel: ReadingLevel): string {
+  const target = targetSentenceCounts[readingLevel];
+  return `Each page text must contain exactly ${target} complete sentence${target === 1 ? '' : 's'}, each ending with a period. This stays within the ${sentenceBudgetFor(readingLevel)} sentence budget. Do not use fragments, bullets, or line breaks in page text.`;
 }
 
 export function buildStoryPrompt(input: StoryPromptInput): string {
@@ -38,6 +49,7 @@ ${input.readingLevel}, who loves ${interests}. Companion: ${input.companion}.
 STORY
 - Situation to prepare for: ${input.situationText} (category: ${input.situationCategory}).
 - Exactly ${input.length} pages. Sentences per page: ${sentenceBudgetFor(input.readingLevel)}. Every sentence has 10 words or fewer. Present tense. Warm and concrete.
+- HARD PAGE-TEXT FORMAT: ${sentenceFormatInstruction(input.readingLevel)}
 - No idioms, no metaphors, no sarcasm, no wordplay. Say feelings plainly and pair each named feeling with one visible body cue.
 - Page 1 sets the place and situation. Middle pages show what happens and what ${input.firstName} CAN do (say "can", not "must"). The last page is a calm, good outcome ending with reassurance and pride.
 - Nothing frightening or shaming. Hard moments are brief and always paired with what helps. At most one exclamation mark per page.

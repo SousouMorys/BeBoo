@@ -1,4 +1,5 @@
 import { getOpenAI } from '../../openai.js';
+import { generationConfig } from '../../config.js';
 import {
   generatedStorySchema,
   type GeneratedStory,
@@ -98,7 +99,7 @@ export async function generateStory(input: GenerateStoryInput): Promise<Generate
   for (let attempt = 0; attempt <= maxValidationRetries; attempt += 1) {
     const response = await withModelRetry(`story writing attempt ${attempt + 1}`, () =>
       writer.responses.create({
-        model: 'gpt-5.6-terra',
+        model: generationConfig.textModel,
         input: revisionPrompt(input, reasons, previousDraft),
         text: {
           format: {

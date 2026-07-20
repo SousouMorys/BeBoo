@@ -49,4 +49,10 @@ Build nothing outside `docs/PRODUCT.md` without asking. Record high-value ideas 
 - Deadline: Tue Jul 21, 5:00 PM PT (= Wed Jul 22, 1:00 AM Tunis). Full compliance checklist in `docs/ARCHITECTURE.md`.
 
 ## Environment
-Backend `.env`: `DATABASE_URL`, `OPENAI_API_KEY`, `PORT`, `IMAGE_MODEL` (`gpt-image-1-mini` in dev, `gpt-image-1.5` for the demo build — DALL·E 3 no longer exists in the API), `TTS_VOICE` (`marin`, fallback `cedar`). Keep `.env.example` current. Never commit secrets.
+Backend `.env`: `DATABASE_URL`, `OPENAI_API_KEY`, `PORT`, `TEXT_MODEL`
+(`gpt-5.6` default), `IMAGE_MODEL` (`gpt-image-1-mini` runtime default;
+`gpt-image-2` for the flagship demo), `IMAGE_QUALITY` (`low` runtime default;
+`high` for the flagship demo), `TTS_MODEL` (`gpt-4o-mini-tts` default), and
+`TTS_VOICE` (`marin`, fallback `cedar`). Transcription remains fixed at
+`whisper-1` because karaoke sync requires `timestamp_granularities: ["word"]`.
+Keep `.env.example` current. Never commit secrets.

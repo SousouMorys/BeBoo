@@ -1,4 +1,5 @@
 import { getOpenAI } from '../../openai.js';
+import { generationConfig } from '../../config.js';
 import { z } from 'zod';
 import { withModelRetry } from '../modelRetry.js';
 import {
@@ -208,7 +209,7 @@ export async function validateStoryWithModel(
   const validator = client ?? (getOpenAI() as unknown as StoryValidatorClient);
   const response = await withModelRetry('story validation', () =>
     validator.responses.create({
-      model: 'gpt-5.6-terra',
+      model: generationConfig.textModel,
       input: modelReviewPrompt(story, input),
       text: {
         format: {

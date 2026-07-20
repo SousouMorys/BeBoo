@@ -299,6 +299,56 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   after the speaker tap and showed a live highlighted word. `npm run
   typecheck`, `npm run lint`, `npm run test`, and `npm run build` pass.
 
+## 2026-07-20 - Judge-ready README
+
+- Added the root README with the product promise, child and caregiver flows,
+  a concise AI-pipeline diagram, OpenAI model roles, local seed-only and full
+  generation setup, API summary, quality commands, deployment notes, and the
+  MIT license.
+- Documented how Codex and GPT-5.6 Terra contributed to the build, as required
+  for the OpenAI Build Week Education submission.
+- Made the prototype boundaries explicit: browser-local onboarding/PIN and
+  check-in state, read-only post-onboarding settings, and the not-yet-wired
+  adaptive selection loop are not presented as finished production features.
+
+## 2026-07-20 - Config-driven flagship generation models
+
+- Centralized generation configuration in `backend/src/config.ts`: `TEXT_MODEL`
+  defaults to `gpt-5.6`, `IMAGE_MODEL` to `gpt-image-1-mini`,
+  `IMAGE_QUALITY` to `low`, and `TTS_MODEL` to `gpt-4o-mini-tts`. `TTS_VOICE`
+  remains `marin` with a story-wide `cedar` fallback; karaoke transcription is
+  intentionally fixed to `whisper-1` with word timestamps.
+- Routed writing, qualitative validation, character-sheet generation, page
+  edits, TTS, and transcription through that one configuration source. Image
+  cache keys remain `hash(styleBlock + characterBlock + scene + model +
+  quality)`, and character sheets now refresh when their configured model or
+  quality changes.
+- Added bounded concurrency of three for page drawing and narration. Each page
+  finishes its own retry/persistence path; an unrecovered page error is then
+  aggregated server-side so the existing calm story `failed` state remains
+  intact. High-quality image requests now receive a three-minute SDK allowance
+  before the existing single retry.
+- Confirmed the current SDK exposes `input_fidelity`, but GPT Image 2 applies
+  high reference-image fidelity automatically and rejects that explicit field.
+  Its edit calls therefore omit the field; other image-edit models receive
+  `input_fidelity: "high"`. No runtime model fallback was added.
+- A live five-page `TEXT_MODEL=gpt-5.6`, `IMAGE_MODEL=gpt-image-2`,
+  `IMAGE_QUALITY=high` run accepted the GPT Image 2 edit contract but did not
+  finish reliably: four page images persisted and one timed out after its
+  single retry. The pipeline correctly marked the story failed and the
+  temporary profile was deleted. A clearly separated, explicit
+  `gpt-image-1.5` high-quality fallback run then completed in 320.2 seconds
+  with five pages, five images, five MP3s, and five timing maps; the temporary
+  profile was deleted through the normal route.
+- The live GPT-5.6 run also exposed an under-specified sentence-count request,
+  so the story prompt now chooses an exact count inside the documented reading
+  level range. The deterministic validator remains the final guard.
+- Updated `.env.example`, README, STORY_RULES sections 6–7, and AGENTS with the
+  flagship example configuration (`gpt-5.6` + `gpt-image-2` + `high`), the
+  development defaults, fidelity compatibility rule, concurrency behavior, and
+  fixed Whisper rationale. `npm run typecheck`, `npm run lint`, `npm run test`,
+  and `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

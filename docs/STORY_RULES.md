@@ -143,17 +143,22 @@ BRIDGE
 
 ## 6. Narration (voice)
 
-- Model `gpt-4o-mini-tts`, voice `TTS_VOICE` (`marin`, fallback `cedar`).
-  The SAME voice for every page of every story — voice consistency is a
-  feature for our audience, not a limitation.
+- Model `TTS_MODEL`, default `gpt-4o-mini-tts`; voice `TTS_VOICE`, default
+  `marin` (story-wide fallback `cedar`). The SAME voice for every page of
+  every story — voice consistency is a feature for our audience, not a
+  limitation.
 - Steering instructions (verbatim constant):
   > "Warm, gentle storyteller reading to a young child. Speak slowly and
   > clearly, with a calm, even tone. Short pauses between sentences. Softly
   > cheerful. Never loud, fast, or dramatic."
 - Speed is applied client-side from the child's narration-speed setting via
   `audio.playbackRate` — never regenerate audio for speed.
-- Timings: transcribe the generated MP3 with `whisper-1`,
-  `timestamp_granularities: ["word"]`. Sanity-check (timestamps monotonic,
+- Voice page audio with a concurrency limit of 3. Each page retries
+  independently; an unrecovered page failure keeps the existing story
+  `failed` state and its calm caregiver retry/fallback path.
+- Timings: transcribe the generated MP3 with fixed `whisper-1` (not an env
+  override), `timestamp_granularities: ["word"]`. Karaoke synchronization
+  depends on those word timestamps. Sanity-check (timestamps monotonic,
   ≥ 90% of words matched) → else fall back to proportional timings.
 - The parent zone carries the AI-voice disclosure (`docs/BRAND.md` §9).
 
@@ -165,6 +170,15 @@ BRIDGE
   neutral pose, plain cream background) and cached; every page image is made
   with the **Edits** endpoint (`IMAGE_MODEL`) using the character sheet as the
   reference image, so the character is identical on every page.
-- Dev: `IMAGE_MODEL=gpt-image-1-mini`, quality low. Demo build:
-  `gpt-image-1.5` (or `gpt-image-2` if credits allow), quality medium.
+- Runtime defaults: `IMAGE_MODEL=gpt-image-1-mini` and `IMAGE_QUALITY=low`.
+  The flagship demo configuration is `TEXT_MODEL=gpt-5.6`,
+  `IMAGE_MODEL=gpt-image-2`, and `IMAGE_QUALITY=high`.
+- Both character-sheet generation and page-edit calls use `IMAGE_QUALITY`.
+- Reference-image fidelity: GPT Image 2 applies high input fidelity
+  automatically, so its page-edit request must omit `input_fidelity`. Other
+  supported page-edit models receive `input_fidelity: "high"` to preserve the
+  character sheet's visual identity.
+- Draw page images with a concurrency limit of 3. A page retries independently;
+  if any page still fails, keep the existing story `failed` state and its calm
+  caregiver retry/fallback path.
 - Cache key = hash(styleBlock + characterBlock + scene + model + quality).

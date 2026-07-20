@@ -1,19 +1,19 @@
 import { createHash } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { toFile } from 'openai';
+import { generationConfig, type NarrationVoice } from '../../config.js';
 import { db } from '../../db.js';
 import { getOpenAI } from '../../openai.js';
 import { errorMessage, withModelRetry } from '../modelRetry.js';
 import { proportionalTimings, timingsFromTranscription, type WordTiming } from './timings.js';
 
-const ttsModel = 'gpt-4o-mini-tts';
-const fallbackVoice = 'cedar';
-type NarrationVoice = 'marin' | typeof fallbackVoice;
+const { transcriptionModel, ttsModel, ttsVoice } = generationConfig;
+const fallbackVoice: NarrationVoice = 'cedar';
 
 export const narrationInstructions = 'Warm, gentle storyteller reading to a young child. Speak slowly and clearly, with a calm, even tone. Short pauses between sentences. Softly cheerful. Never loud, fast, or dramatic.';
 
 function configuredVoice(): NarrationVoice {
-  return process.env.TTS_VOICE === fallbackVoice ? fallbackVoice : 'marin';
+  return ttsVoice;
 }
 
 function audioHash(text: string, voice: NarrationVoice): string {
@@ -56,7 +56,7 @@ async function wordTimings(text: string, bytes: Buffer, pageIndex: number): Prom
       const file = await toFile(bytes, `page-${pageIndex}.mp3`, { type: 'audio/mpeg' });
       return getOpenAI().audio.transcriptions.create({
         file,
-        model: 'whisper-1',
+        model: transcriptionModel,
         language: 'en',
         response_format: 'verbose_json' as const,
         timestamp_granularities: ['word'],
@@ -74,6 +74,71 @@ async function wordTimings(text: string, bytes: Buffer, pageIndex: number): Prom
   }
 }
 
+type NarrationPage = {
+  id: string;
+  index: number;
+  text: string;
+};
+
+type NarrationAudio = {
+  id: string;
+  bytes: Buffer;
+};
+
+const pageNarrationConcurrency = 3;
+
+async function storePageNarration(page: NarrationPage, audio: NarrationAudio): Promise<void> {
+  const timings = await wordTimings(page.text, audio.bytes, page.index);
+  await db.page.update({
+    where: { id: page.id },
+    data: {
+      audioId: audio.id,
+      timings: timings as unknown as Prisma.InputJsonValue,
+    },
+  });
+}
+
+async function voicePage(page: NarrationPage, voice: NarrationVoice): Promise<void> {
+  const audio = await findOrCreateAudio(page.text, page.index, voice);
+  await storePageNarration(page, audio);
+}
+
+/**
+ * Runs the remaining pages in a small worker pool. Individual page failures
+ * are collected rather than aborting workers, so completed pages retain their
+ * audio and timings before the story pipeline transitions to failed.
+ */
+async function voiceRemainingPages(pages: NarrationPage[], voice: NarrationVoice): Promise<void> {
+  const failures: Array<{ pageIndex: number; error: unknown }> = [];
+  let nextPage = 0;
+
+  async function worker(): Promise<void> {
+    while (nextPage < pages.length) {
+      const page = pages[nextPage];
+      nextPage += 1;
+
+      try {
+        await voicePage(page, voice);
+      } catch (error) {
+        failures.push({ pageIndex: page.index, error });
+      }
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(pageNarrationConcurrency, pages.length) },
+    () => worker(),
+  );
+  await Promise.all(workers);
+
+  if (failures.length > 0) {
+    const details = failures
+      .map(({ pageIndex, error }) => `page ${pageIndex}: ${errorMessage(error)}`)
+      .join('; ');
+    throw new Error(`Narration failed after processing all pages: ${details}`);
+  }
+}
+
 /** Creates and stores a calm MP3 plus word timings for every generated story page. */
 export async function voiceStoryPages(storyId: string): Promise<void> {
   const story = await db.story.findUnique({
@@ -83,25 +148,19 @@ export async function voiceStoryPages(storyId: string): Promise<void> {
   if (!story) throw new Error(`Cannot voice missing story ${storyId}.`);
 
   let voice = configuredVoice();
-  for (let pageOffset = 0; pageOffset < story.pages.length; pageOffset += 1) {
-    const page = story.pages[pageOffset];
-    let audio;
-    try {
-      audio = await findOrCreateAudio(page.text, page.index, voice);
-    } catch (error) {
-      if (pageOffset !== 0 || voice === fallbackVoice) throw error;
-      console.warn(`[audio] ${voice} was unavailable; using ${fallbackVoice} for this story: ${errorMessage(error)}`);
-      voice = fallbackVoice;
-      audio = await findOrCreateAudio(page.text, page.index, voice);
-    }
+  const [firstPage, ...remainingPages] = story.pages;
+  if (!firstPage) return;
 
-    const timings = await wordTimings(page.text, audio.bytes, page.index);
-    await db.page.update({
-      where: { id: page.id },
-      data: {
-        audioId: audio.id,
-        timings: timings as unknown as Prisma.InputJsonValue,
-      },
-    });
+  let firstAudio: NarrationAudio;
+  try {
+    firstAudio = await findOrCreateAudio(firstPage.text, firstPage.index, voice);
+  } catch (error) {
+    if (voice === fallbackVoice) throw error;
+    console.warn(`[audio] ${voice} was unavailable; using ${fallbackVoice} for this story: ${errorMessage(error)}`);
+    voice = fallbackVoice;
+    firstAudio = await findOrCreateAudio(firstPage.text, firstPage.index, voice);
   }
+
+  await storePageNarration(firstPage, firstAudio);
+  await voiceRemainingPages(remainingPages, voice);
 }

@@ -106,4 +106,22 @@ describe('validateStoryLocally', () => {
     expect(prompt).toContain('Set checkIn to null on every page.');
     expect(prompt).toContain('Every page must include a checkIn field.');
   });
+
+  it('gives beginner stories an exact page-text sentence target inside their budget', () => {
+    const prompt = buildStoryPrompt({
+      firstName: 'Sami',
+      pronoun: 'they/them',
+      readingLevel: 'beginner',
+      interests: [],
+      companion: 'BeBoo',
+      situationCategory: 'school',
+      situationText: 'A fire drill at school',
+      length: 5,
+      checkIns: true,
+      targetEmotions: ['nervous', 'calm'],
+    });
+
+    expect(prompt).toContain('exactly 2 complete sentences');
+    expect(prompt).toContain('Do not use fragments, bullets, or line breaks in page text.');
+  });
 });
