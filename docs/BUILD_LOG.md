@@ -404,6 +404,17 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   and the commit history. `npm run typecheck`, `npm run lint`, `npm run test`,
   and `npm run build` pass.
 
+## 2026-07-21 - GPT-5.6 Terra text-model default
+
+- Made `gpt-5.6-terra` the default and example `TEXT_MODEL` for both strict
+  story generation and qualitative validation. The environment override stays
+  intact; image, TTS, and Whisper configuration are unchanged.
+- Updated the active configuration and judge-facing documentation to identify
+  GPT-5.6 Terra as the text model. Historical build-log entries remain an
+  accurate record of prior runs.
+- Verification: `npm run typecheck`, `npm run lint`, `npm run test`, and
+  `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

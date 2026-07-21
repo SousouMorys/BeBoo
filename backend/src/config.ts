@@ -33,7 +33,7 @@ function narrationVoice(): NarrationVoice {
 
 /** The only source of model and narration defaults for the generation pipeline. */
 export const generationConfig = Object.freeze({
-  textModel: envValue('TEXT_MODEL', 'gpt-5.6'),
+  textModel: envValue('TEXT_MODEL', 'gpt-5.6-terra'),
   imageModel: envValue('IMAGE_MODEL', 'gpt-image-1-mini'),
   imageQuality: imageQuality(),
   ttsModel: envValue('TTS_MODEL', 'gpt-4o-mini-tts'),

@@ -171,7 +171,7 @@ BRIDGE
   with the **Edits** endpoint (`IMAGE_MODEL`) using the character sheet as the
   reference image, so the character is identical on every page.
 - Runtime defaults: `IMAGE_MODEL=gpt-image-1-mini` and `IMAGE_QUALITY=low`.
-  The flagship demo configuration is `TEXT_MODEL=gpt-5.6`,
+  The flagship demo configuration is `TEXT_MODEL=gpt-5.6-terra`,
   `IMAGE_MODEL=gpt-image-2`, and `IMAGE_QUALITY=high`.
 - Both character-sheet generation and page-edit calls use `IMAGE_QUALITY`.
 - Reference-image fidelity: GPT Image 2 applies high input fidelity

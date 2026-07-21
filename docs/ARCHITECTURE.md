@@ -13,7 +13,7 @@
         └──────────────────────────────────┤               ▼
                                   ┌────────▼──────┐  ┌─────────────────────────┐
                                   │  Postgres     │  │  OpenAI API             │
-                                  │  (Neon free)  │  │  gpt-5.6  write+validate│
+                                  │  (Neon free)  │  │  gpt-5.6-terra write+val│
                                   │  incl. media  │  │  IMAGE_MODEL  draw      │
                                   │  as bytea     │  │  gpt-4o-mini-tts  voice │
                                   └───────────────┘  │  whisper-1  timings     │
@@ -129,7 +129,7 @@ enum MediaKind    { image audio }
 
 | Stage | Module | Calls | On success |
 |---|---|---|---|
-| `writing` | `story/generate.ts` → `story/validate.ts` | gpt-5.6 ×1 (+ ≤2 validator retries) | → `drawing` |
+| `writing` | `story/generate.ts` → `story/validate.ts` | gpt-5.6-terra ×1 (+ ≤2 validator retries) | → `drawing` |
 | `drawing` | `images/` | character sheet (cached) + Edits per page | → `voicing` |
 | `voicing` | `audio/` | gpt-4o-mini-tts + whisper-1 per page | → `ready` |
 
@@ -142,7 +142,7 @@ enum MediaKind    { image audio }
 
 ## 5. Cost controls (hackathon credits are finite)
 
-- Per story ≈ 1–2 gpt-5.6 calls + (length) images + (length) short TTS clips +
+- Per story ≈ 1–2 gpt-5.6-terra calls + (length) images + (length) short TTS clips +
   (length) whisper transcriptions. With `IMAGE_MODEL=gpt-image-1-mini` at low
   quality (≈ half a cent per image), a full 5-page story costs pennies.
 - The character sheet is generated once per child and cached; page images are
@@ -215,10 +215,10 @@ cut the check-in scaffolds or the calm states — they ARE the product.
 - [ ] Built inside Codex; main build kept in ONE thread → `/feedback` Session ID captured for the submission form.
 - [ ] Timestamped conventional commits across the Submission Period (Jul 13–21).
 - [ ] README: what BeBoo is, setup + sample data, how judges run it, and a
-      "Built with Codex + GPT-5.6" section (where Codex accelerated, key
-      decisions, how GPT-5.6 is used at runtime).
+      "Built with Codex + GPT-5.6 Terra" section (where Codex accelerated, key
+      decisions, how GPT-5.6 Terra is used at runtime).
 - [ ] Video: < 3 minutes, public on YouTube, audio narration covering what was
-      built and how Codex AND GPT-5.6 were used; no third-party trademarks or
+      built and how Codex AND GPT-5.6 Terra were used; no third-party trademarks or
       copyrighted music.
 - [ ] Repo public with a license, or private + shared with
       `testing@devpost.com` and `build-week-event@openai.com`.
@@ -228,7 +228,7 @@ cut the check-in scaffolds or the calm states — they ARE the product.
 
 | Criterion | Our answer |
 |---|---|
-| Technological implementation | Codex-built full pipeline: GPT-5.6 structured outputs + model-based validator pass, Edits-endpoint character consistency, word-level karaoke sync from whisper timestamps, adaptive emotion loop |
+| Technological implementation | Codex-built full pipeline: GPT-5.6 Terra structured outputs + model-based validator pass, Edits-endpoint character consistency, word-level karaoke sync from whisper timestamps, adaptive emotion loop |
 | Design | An evidence-informed design system (`docs/BRAND.md`) executed as a complete two-zone product — the calm constraints ARE the product thesis |
 | Potential impact | Caregiver-guided preparation for real events (dentist, fire drill, plans changing) for an underserved audience; positioned honestly as support, not therapy |
 | Quality of the idea | Not a generic story generator: personalization + adaptive emotion practice + locked visual consistency + no-fail interaction design |
@@ -242,7 +242,7 @@ backend + pipeline, P3 = wiring + audio + adaptive.
 ```
 beboo/
 ├─ AGENTS.md                           # Codex contract — read first
-├─ README.md                           # setup, judges' guide, Codex + GPT-5.6 section (Day 5)
+├─ README.md                           # setup, judges' guide, Codex + GPT-5.6 Terra section (Day 5)
 ├─ package.json                        # npm workspaces: frontend, backend + root scripts
 ├─ .gitignore
 ├─ data/
@@ -309,7 +309,7 @@ beboo/
          ├─ pipeline.ts                # sequences writing → drawing → voicing, updates status
          ├─ story/
          │  ├─ prompt.ts               # STORY_RULES §4 template
-         │  ├─ generate.ts             # gpt-5.6 structured output
+         │  ├─ generate.ts             # gpt-5.6-terra structured output
          │  ├─ validate.ts             # STORY_RULES §5 model pass
          │  └─ validate.test.ts
          ├─ images/

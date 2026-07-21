@@ -45,12 +45,12 @@ Build nothing outside `docs/PRODUCT.md` without asking. Record high-value ideas 
 ## Hackathon duties (OpenAI Build Week — non-negotiable)
 - Build inside Codex, and keep the main build in ONE thread: the submission requires that thread's `/feedback` Session ID (the thread where the majority of core functionality was built).
 - Timestamped conventional commits throughout the Submission Period (Jul 13–21) — they are the evidence of work done during the period.
-- The README must document how Codex and GPT-5.6 were used and where Codex accelerated the work; judges score this directly.
+- The README must document how Codex and GPT-5.6 Terra were used and where Codex accelerated the work; judges score this directly.
 - Deadline: Tue Jul 21, 5:00 PM PT (= Wed Jul 22, 1:00 AM Tunis). Full compliance checklist in `docs/ARCHITECTURE.md`.
 
 ## Environment
 Backend `.env`: `DATABASE_URL`, `OPENAI_API_KEY`, `PORT`, `TEXT_MODEL`
-(`gpt-5.6` default), `IMAGE_MODEL` (`gpt-image-1-mini` runtime default;
+(`gpt-5.6-terra` default), `IMAGE_MODEL` (`gpt-image-1-mini` runtime default;
 `gpt-image-2` for the flagship demo), `IMAGE_QUALITY` (`low` runtime default;
 `high` for the flagship demo), `TTS_MODEL` (`gpt-4o-mini-tts` default), and
 `TTS_VOICE` (`marin`, fallback `cedar`). Transcription remains fixed at

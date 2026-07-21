@@ -60,7 +60,7 @@ environment variable in the template:
 | `DATABASE_URL` | PostgreSQL placeholder | None | Required PostgreSQL connection URL. |
 | `OPENAI_API_KEY` | Empty | None | Required when generating stories; keep it server-side and out of Git. |
 | `PORT` | `3001` | `3001` | Express port. |
-| `TEXT_MODEL` | `gpt-5.6` | `gpt-5.6` | Structured story writing and review. |
+| `TEXT_MODEL` | `gpt-5.6-terra` | `gpt-5.6-terra` | Structured story writing and review. |
 | `IMAGE_MODEL` | `gpt-image-2` | `gpt-image-1-mini` | Character sheet and page illustration model. |
 | `IMAGE_QUALITY` | `high` | `low` | Illustration quality setting. |
 | `TTS_MODEL` | `gpt-4o-mini-tts` | `gpt-4o-mini-tts` | Page narration model. |
@@ -114,7 +114,7 @@ across the seed stories, and feelings across the last week. The frontend mock
 also supplies a populated dashboard. This lets a judge see meaningful parent
 progress without having to create dozens of check-ins first.
 
-## How this was built with Codex and GPT-5.6
+## How this was built with Codex and GPT-5.6 Terra
 
 Before implementation, I wrote five working specifications covering the
 product flow, brand, architecture, story rules, and build plan. `AGENTS.md`
@@ -132,14 +132,14 @@ safety boundaries, and final decisions; Codex accelerated the concrete work:
 | Area | What Codex accelerated | What I decided |
 | --- | --- | --- |
 | Static-first foundation | Scaffolded the React/Express/Prisma workspace, the seed-backed `api.ts` boundary, and the child shelf/player so the first demo worked without a database or key. | A static-first path with one swappable frontend data boundary, so judges can run the child flow safely. |
-| Story safety | Implemented structured-output generation, deterministic validation, reviewer tests, and a repair for false metadata vocabulary failures. | A two-pass GPT-5.6 flow with strict JSON, bounded retries, and child-visible safety checks. |
+| Story safety | Implemented structured-output generation, deterministic validation, reviewer tests, and a repair for false metadata vocabulary failures. | A two-pass GPT-5.6 Terra flow with strict JSON, bounded retries, and child-visible safety checks. |
 | Illustration consistency | Built the cached character-sheet and page-edit pipeline, centralized model settings, and tested model-specific image-edit compatibility. | One reference character sheet plus image edits, not unrelated page images; no silent model fallback. |
 | Synchronized narration | Wired TTS, Whisper alignment, the proportional-timing fallback, and a player clock driven by real audio time. | Tap-only playback, word highlighting when trustworthy, and a fallback that never blocks a calming story. |
 | Parent progress | Added the schema migration, seeded history, dashboard calculations, tests, and parent-only Progress layout. | First-attempt signals only, a two-miss confusion threshold, rereads treated positively, and no child-visible scoring. |
 
 ### Key decisions I made
 
-- Use GPT-5.6 twice: once for strict structured story output and once for a
+- Use GPT-5.6 Terra twice: once for strict structured story output and once for a
   qualitative validation pass, with deterministic rules as the final gate.
 - Keep recurring characters consistent with a character sheet followed by
   image edits for each scene.
@@ -157,7 +157,7 @@ safety boundaries, and final decisions; Codex accelerated the concrete work:
 
 | Runtime stage | Model | What it does |
 | --- | --- | --- |
-| Writing and review | `gpt-5.6` | Produces the structured story and performs the qualitative review. |
+| Writing and review | `gpt-5.6-terra` | Produces the structured story and performs the qualitative review. |
 | Illustration | `gpt-image-1-mini` at `low` by default; `gpt-image-2` at `high` as the supported flagship configuration | Creates the character sheet and page art. |
 | Narration | `gpt-4o-mini-tts` | Produces a calm MP3 for each generated page. |
 | Word timing | `whisper-1` | Produces word timestamps for the karaoke highlight. |

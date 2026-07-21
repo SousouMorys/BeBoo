@@ -64,7 +64,7 @@ Story: `{ id, title, situationCategory, childProfile, characterBlock, pages[], b
 - `GET /api/media/:id` (images/audio from Postgres, long cache headers)
 
 ## 7. Generation pipeline (backend/src/lib/)
-1. `story/generate.ts` — one structured-output `gpt-5.6` call returning a complete story object (reading level → sentence budget; interests woven; per-page animation chosen; target emotions from adaptive module; prompt template in `docs/STORY_RULES.md`).
+1. `story/generate.ts` — one structured-output `gpt-5.6-terra` call returning a complete story object (reading level → sentence budget; interests woven; per-page animation chosen; target emotions from adaptive module; prompt template in `docs/STORY_RULES.md`).
 2. `story/validate.ts` — second model pass against social-story rules (checklist in `docs/STORY_RULES.md` §5); fail → regenerate with reasons, max 2 retries.
 3. `images/` — character sheet at profile creation (front view, neutral pose, plain cream background) cached; per-page generation via the image **Edits** endpoint (`IMAGE_MODEL`) with the character sheet as reference image, prompt = styleBlock + characterBlock + scene; cache by content hash.
 4. `audio/` — TTS per page (`gpt-4o-mini-tts`, voice `TTS_VOICE`, steering instructions in `docs/STORY_RULES.md` §6) → transcription with word-level timestamps (`whisper-1`, `timestamp_granularities: ["word"]`) → timings map; proportional fallback.
