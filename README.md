@@ -66,7 +66,7 @@ environment variable in the template:
 | `TTS_MODEL` | `gpt-4o-mini-tts` | `gpt-4o-mini-tts` | Page narration model. |
 | `TTS_VOICE` | `marin` | `marin` | Narration voice; `cedar` is the story-wide fallback if the first voice fails. |
 
-The template intentionally shows the flagship demo image configuration:
+The template intentionally shows a supported flagship image configuration:
 `gpt-image-2` at `high`. For the lower-cost runtime configuration, set
 `IMAGE_MODEL=gpt-image-1-mini` and `IMAGE_QUALITY=low`, or omit those values.
 `whisper-1` is fixed in code because the karaoke highlight needs word-level
@@ -158,7 +158,7 @@ safety boundaries, and final decisions; Codex accelerated the concrete work:
 | Runtime stage | Model | What it does |
 | --- | --- | --- |
 | Writing and review | `gpt-5.6` | Produces the structured story and performs the qualitative review. |
-| Illustration | `gpt-image-1-mini` at `low` by default; `gpt-image-2` at `high` for the flagship demo | Creates the character sheet and page art. |
+| Illustration | `gpt-image-1-mini` at `low` by default; `gpt-image-2` at `high` as the supported flagship configuration | Creates the character sheet and page art. |
 | Narration | `gpt-4o-mini-tts` | Produces a calm MP3 for each generated page. |
 | Word timing | `whisper-1` | Produces word timestamps for the karaoke highlight. |
 
@@ -175,7 +175,7 @@ not therapy, diagnosis, or a replacement for professional care.
 - The parent zone is behind a four-digit PIN with neutral failure copy. The
   OpenAI API key stays on the server.
 - The parent area clearly says that stories and narration are AI-generated.
-- Child-facing rules are intentionally strict: no autoplay, no test-like
+- Child-facing rules are intentionally strict: no autoplayed audio, no test-like
   feedback or gamification, warm check-in retries, literal copy, shared
   eight-face emotion art, fixed controls, large touch targets, and reduced
   motion support. See [AGENTS.md](AGENTS.md) for the full nine-rule contract.
