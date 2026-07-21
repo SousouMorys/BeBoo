@@ -43,6 +43,9 @@ const defaultSettings = {
   autoplay: false,
 };
 
+const demoChildId = 'seed-demo-child';
+const dayMs = 24 * 60 * 60 * 1_000;
+
 function repoFile(relativePath: string): string {
   const roots = [process.cwd(), path.resolve(process.cwd(), '..')];
   const match = roots.map((root) => path.resolve(root, relativePath)).find(existsSync);
@@ -153,13 +156,137 @@ async function seedStory(story: SeedStory): Promise<void> {
   }
 }
 
+function recentDate(now: number, daysAgo: number, minuteOffset = 0): Date {
+  return new Date(now - daysAgo * dayMs - minuteOffset * 60_000);
+}
+
+/** Gives the demo parent dashboard a calm, repeatable story of real-looking use. */
+async function seedDemoHistory(stories: SeedStory[]): Promise<void> {
+  const storyIds = new Set(stories.map((story) => story.id));
+  const requiredStoryIds = [
+    'story-dentist-sami',
+    'story-firedrill-maya',
+    'story-planchange-adam',
+  ];
+  if (requiredStoryIds.some((storyId) => !storyIds.has(storyId))) {
+    throw new Error('Seed dashboard history needs all three bundled seed stories.');
+  }
+
+  await db.child.upsert({
+    where: { id: demoChildId },
+    create: {
+      id: demoChildId,
+      firstName: 'Sami',
+      pronoun: 'they/them',
+      readingLevel: 'beginner',
+      interests: ['trains'],
+      companion: 'a small red-and-teal toy train',
+      settings: defaultSettings,
+    },
+    update: {
+      firstName: 'Sami',
+      pronoun: 'they/them',
+      readingLevel: 'beginner',
+      interests: ['trains'],
+      companion: 'a small red-and-teal toy train',
+      settings: defaultSettings,
+    },
+  });
+
+  await db.$transaction([
+    db.checkInResult.deleteMany({ where: { childId: demoChildId } }),
+    db.readLog.deleteMany({ where: { childId: demoChildId } }),
+    db.feelingLog.deleteMany({ where: { childId: demoChildId } }),
+  ]);
+
+  const now = Date.now();
+  await db.checkInResult.createMany({
+    data: [
+      // Happy and calm are well established on first attempts.
+      ...Array.from({ length: 4 }, (_, index) => ({
+        storyId: 'story-planchange-adam',
+        page: 4,
+        childId: demoChildId,
+        emotionId: 'happy',
+        correctEmotionId: 'happy',
+        correct: true,
+        attempt: 1,
+        createdAt: recentDate(now, index, 10),
+      })),
+      ...Array.from({ length: 3 }, (_, index) => ({
+        storyId: 'story-firedrill-maya',
+        page: 4,
+        childId: demoChildId,
+        emotionId: 'calm',
+        correctEmotionId: 'calm',
+        correct: true,
+        attempt: 1,
+        createdAt: recentDate(now, index + 1, 20),
+      })),
+      // Two matched misses create the one surfaced nervous/scared pair.
+      {
+        storyId: 'story-dentist-sami',
+        page: 3,
+        childId: demoChildId,
+        emotionId: 'scared',
+        correctEmotionId: 'nervous',
+        correct: false,
+        attempt: 1,
+        createdAt: recentDate(now, 2, 30),
+      },
+      {
+        storyId: 'story-dentist-sami',
+        page: 3,
+        childId: demoChildId,
+        emotionId: 'nervous',
+        correctEmotionId: 'nervous',
+        correct: true,
+        attempt: 1,
+        createdAt: recentDate(now, 3, 40),
+      },
+      {
+        storyId: 'story-dentist-sami',
+        page: 3,
+        childId: demoChildId,
+        emotionId: 'scared',
+        correctEmotionId: 'nervous',
+        correct: false,
+        attempt: 1,
+        createdAt: recentDate(now, 4, 50),
+      },
+    ],
+  });
+
+  await db.readLog.createMany({
+    data: [
+      { childId: demoChildId, storyId: 'story-dentist-sami', createdAt: recentDate(now, 0, 5) },
+      { childId: demoChildId, storyId: 'story-firedrill-maya', createdAt: recentDate(now, 1, 5) },
+      { childId: demoChildId, storyId: 'story-planchange-adam', createdAt: recentDate(now, 2, 5) },
+      { childId: demoChildId, storyId: 'story-dentist-sami', createdAt: recentDate(now, 4, 5) },
+      { childId: demoChildId, storyId: 'story-firedrill-maya', createdAt: recentDate(now, 6, 5) },
+    ],
+  });
+
+  await db.feelingLog.createMany({
+    data: [
+      { childId: demoChildId, emotionId: 'happy', createdAt: recentDate(now, 0, 1) },
+      { childId: demoChildId, emotionId: 'calm', createdAt: recentDate(now, 1, 1) },
+      { childId: demoChildId, emotionId: 'nervous', createdAt: recentDate(now, 2, 1) },
+      { childId: demoChildId, emotionId: 'nervous', createdAt: recentDate(now, 4, 1) },
+      { childId: demoChildId, emotionId: 'proud', createdAt: recentDate(now, 5, 1) },
+      { childId: demoChildId, emotionId: 'sad', createdAt: recentDate(now, 6, 1) },
+    ],
+  });
+}
+
 async function main(): Promise<void> {
   const raw = await readFile(repoFile('data/beboo-seed-stories.json'), 'utf8');
   const document = JSON.parse(raw) as SeedDocument;
   for (const story of document.stories) {
     await seedStory(story);
   }
-  console.log(`Seeded ${document.stories.length} stories and their page art.`);
+  await seedDemoHistory(document.stories);
+  console.log(`Seeded ${document.stories.length} stories, their page art, and demo dashboard history.`);
 }
 
 main()

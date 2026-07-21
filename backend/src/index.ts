@@ -13,6 +13,7 @@ import { failInterruptedStoryPipelines } from './lib/pipeline.js';
 import { mediaRouter } from './routes/media.js';
 import { pinRouter } from './routes/pin.js';
 import { practiceRouter } from './routes/practice.js';
+import { readsRouter } from './routes/reads.js';
 import { storiesRouter } from './routes/stories.js';
 
 const sourceFile = fileURLToPath(import.meta.url);
@@ -46,6 +47,7 @@ export function createApp() {
   app.use('/api', storiesRouter);
   app.use('/api', checkInsRouter);
   app.use('/api', practiceRouter);
+  app.use('/api', readsRouter);
   app.use('/api', dashboardRouter);
   app.use('/api', mediaRouter);
   app.use('/api', (_request, response) => response.status(404).json({ error: 'Not found.' }));

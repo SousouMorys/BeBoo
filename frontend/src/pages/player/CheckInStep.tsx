@@ -79,6 +79,7 @@ export function CheckInStep({
         page: page.page,
         childId,
         emotionId,
+        correctEmotionId,
         correct,
         attempt: nextAttempt,
       });

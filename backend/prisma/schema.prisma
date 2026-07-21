@@ -25,6 +25,7 @@ model Child {
   results      CheckInResult[]
   stats        EmotionStat[]
   feelingLogs  FeelingLog[]
+  readLogs     ReadLog[]
   createdAt    DateTime        @default(now())
 }
 
@@ -41,6 +42,7 @@ model Story {
   checkIns          Boolean
   status            StoryStatus @default(writing)
   pages             Page[]
+  readLogs          ReadLog[]
   createdAt         DateTime    @default(now())
 }
 
@@ -76,9 +78,14 @@ model CheckInResult {
   child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
   childId   String
   emotionId String
+  /// Older rows may not have this value because it was introduced after check-ins shipped.
+  correctEmotionId String?
   correct   Boolean
   attempt   Int
   createdAt DateTime @default(now())
+
+  @@index([childId, attempt, correctEmotionId])
+  @@index([childId, correct, correctEmotionId])
 }
 
 model EmotionStat {
@@ -100,6 +107,18 @@ model FeelingLog {
   createdAt DateTime @default(now())
 
   @@index([childId, createdAt])
+}
+
+model ReadLog {
+  id        String   @id @default(cuid())
+  child     Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  childId   String
+  story     Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId   String
+  createdAt DateTime @default(now())
+
+  @@index([childId, createdAt])
+  @@index([childId, storyId])
 }
 
 enum ReadingLevel {

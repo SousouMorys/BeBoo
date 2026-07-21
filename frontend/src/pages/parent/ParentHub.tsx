@@ -27,6 +27,10 @@ function settingValue(value: boolean, onLabel: string, offLabel: string): string
   return value ? onLabel : offLabel;
 }
 
+function pluralize(count: number, singular: string): string {
+  return `${count} ${singular}${count === 1 ? '' : 's'}`;
+}
+
 export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
   const [model, setModel] = useState<ParentModel | null>(null);
   const [activeTab, setActiveTab] = useState<ParentTab>('library');
@@ -79,6 +83,11 @@ export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
       count: dashboard?.feelings.last7Days.find((feeling) => feeling.emotionId === emotionId)?.count ?? 0,
     }))
     .filter((feeling) => feeling.count > 0);
+  const accuracyRows = dashboard?.accuracy ?? [];
+  const confusionPairs = (dashboard?.confusionPairs ?? [])
+    .filter((pair) => pair.count >= 2)
+    .slice(0, 2);
+  const reads = dashboard?.reads ?? { distinctStories: 0, total: 0 };
 
   return (
     <main className="min-h-[100dvh] bg-bb-cream px-5 py-8 text-bb-ink sm:px-8 sm:py-12">
@@ -162,26 +171,114 @@ export function ParentHub({ onExit, onNewStory }: ParentHubProps) {
             id="progress-panel"
             role="tabpanel"
           >
-            <h2 className="m-0 text-[24px] font-extrabold">Feelings {child.firstName} shared</h2>
-            <p className="mt-1 text-[16px] font-bold text-bb-ink-soft">Last 7 days</p>
-            {feelingCounts.length > 0 ? (
-              <ul aria-label={`Feelings ${child.firstName} shared in the last 7 days`} className="mt-6 flex list-none flex-wrap gap-3 p-0">
-                {feelingCounts.map(({ emotionId, count }) => (
-                  <li
-                    className="flex min-h-11 items-center gap-2 rounded-bb bg-bb-sand px-3 py-2 text-[16px] font-extrabold text-bb-ink"
-                    key={emotionId}
-                  >
-                    <EmotionFace emotion={emotionId} label={`${emotionId} feeling`} size={44} />
-                    <span>{emotionId}</span>
-                    <span aria-label={`${count} shared`} className="text-bb-ink-soft">
-                      {count}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mb-0 mt-6 text-[16px] text-bb-ink-soft">No feelings shared yet.</p>
-            )}
+            <h2 className="m-0 text-[24px] font-extrabold">Progress</h2>
+
+            <section aria-labelledby="accuracy-heading" className="mt-7">
+              <h3 className="m-0 text-[20px] font-extrabold" id="accuracy-heading">
+                Emotion check-ins
+              </h3>
+              {accuracyRows.length > 0 ? (
+                <ul className="mt-4 grid list-none gap-4 p-0">
+                  {accuracyRows.map(({ emotionId, correct, total }) => {
+                    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+                    return (
+                      <li className="rounded-bb bg-bb-cream p-4" key={emotionId}>
+                        <div className="flex items-center gap-3">
+                          <EmotionFace emotion={emotionId} label={`${emotionId} emotion`} size={44} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                              <span className="text-[16px] font-extrabold capitalize">{emotionId}</span>
+                              <span className="text-[16px] font-bold text-bb-ink-soft">
+                                {correct} of {total}
+                              </span>
+                            </div>
+                            <div
+                              aria-label={`${emotionId}: ${correct} of ${total} first check-ins correct`}
+                              aria-valuemax={total}
+                              aria-valuemin={0}
+                              aria-valuenow={correct}
+                              className="mt-2 h-3 overflow-hidden rounded-full bg-bb-sand"
+                              role="progressbar"
+                            >
+                              <div className="h-full rounded-full bg-bb-teal" style={{ width: `${accuracy}%` }} />
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="mb-0 mt-4 text-[16px] text-bb-ink-soft">No check-ins yet.</p>
+              )}
+            </section>
+
+            {confusionPairs.length > 0 ? (
+              <section aria-labelledby="confusion-heading" className="mt-8 border-t-2 border-bb-sand pt-8">
+                <h3 className="m-0 text-[20px] font-extrabold" id="confusion-heading">
+                  Feelings that can look alike
+                </h3>
+                <ul className="mt-4 grid list-none gap-3 p-0">
+                  {confusionPairs.map(({ emotionIds: [firstEmotionId, secondEmotionId], count }) => (
+                    <li
+                      className="flex items-center gap-3 rounded-bb bg-bb-sand p-3 text-[16px] font-bold text-bb-ink"
+                      key={`${firstEmotionId}-${secondEmotionId}`}
+                    >
+                      <span aria-hidden="true" className="flex shrink-0 -space-x-2">
+                        <EmotionFace emotion={firstEmotionId} size={44} />
+                        <EmotionFace emotion={secondEmotionId} size={44} />
+                      </span>
+                      <span>
+                        Often mixes {firstEmotionId} with {secondEmotionId}
+                        <span className="sr-only"> ({count} times)</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            <section aria-labelledby="reads-heading" className="mt-8 border-t-2 border-bb-sand pt-8">
+              <h3 className="m-0 text-[20px] font-extrabold" id="reads-heading">
+                Stories read
+              </h3>
+              {reads.total > 0 ? (
+                <p className="mb-0 mt-3 text-[16px] font-bold text-bb-ink-soft">
+                  {pluralize(reads.distinctStories, 'story')}, read {pluralize(reads.total, 'time')}
+                </p>
+              ) : (
+                <p className="mb-0 mt-3 text-[16px] text-bb-ink-soft">No stories read yet.</p>
+              )}
+            </section>
+
+            <section aria-labelledby="feelings-heading" className="mt-8 border-t-2 border-bb-sand pt-8">
+              <h3 className="m-0 text-[20px] font-extrabold" id="feelings-heading">
+                Feelings {child.firstName} shared
+              </h3>
+              <p className="mt-1 text-[16px] font-bold text-bb-ink-soft">Last 7 days</p>
+              {feelingCounts.length > 0 ? (
+                <ul
+                  aria-label={`Feelings ${child.firstName} shared in the last 7 days`}
+                  className="mt-4 flex list-none flex-wrap gap-3 p-0"
+                >
+                  {feelingCounts.map(({ emotionId, count }) => (
+                    <li
+                      className="flex min-h-11 items-center gap-2 rounded-bb bg-bb-sand px-3 py-2 text-[16px] font-extrabold text-bb-ink"
+                      key={emotionId}
+                    >
+                      <EmotionFace emotion={emotionId} label={`${emotionId} feeling`} size={44} />
+                      <span>{emotionId}</span>
+                      <span aria-label={`${count} shared`} className="text-bb-ink-soft">
+                        {count}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mb-0 mt-4 text-[16px] text-bb-ink-soft">No feelings shared yet.</p>
+              )}
+            </section>
           </section>
         ) : null}
 

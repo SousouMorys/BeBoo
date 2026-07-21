@@ -31,7 +31,6 @@ export function Shelf() {
   }, []);
 
   function openStory(storyId: string) {
-    void api.markStoryRead(storyId);
     navigate(`/story/${storyId}`);
   }
 

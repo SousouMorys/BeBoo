@@ -96,7 +96,6 @@ export function GenerationProgress() {
 
   async function readFallbackStory() {
     const fallback = await api.getFallbackSeedStory(category);
-    await api.markStoryRead(fallback.id);
     navigate(`/story/${fallback.id}`);
   }
 

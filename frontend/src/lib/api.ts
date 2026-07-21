@@ -9,6 +9,7 @@ import type {
   Dashboard,
   EmotionId,
   FeelingLogInput,
+  ReadLogInput,
   Story,
   StoryChildProfile,
   StoryGenerationChildProfile,
@@ -71,6 +72,7 @@ interface MockState {
   pinAttempts: number;
   checkInAttempts: CheckInAttempt[];
   recentStoryIds: string[];
+  readLogs: Array<ReadLogInput & { createdAt: string }>;
 }
 
 const seed = seedStories as unknown as SeedDocument;
@@ -96,6 +98,30 @@ const stories: Story[] = seed.stories.map((story) => ({
     imageUrl: `/seed/${story.id}/${page.page}.jpeg`,
   })),
 }));
+
+const mockReadStoryIds = stories.slice(0, 3).map((story) => story.id);
+
+const mockDashboard: Dashboard = {
+  accuracy: [
+    { emotionId: 'happy', correct: 4, total: 4 },
+    { emotionId: 'calm', correct: 3, total: 3 },
+    { emotionId: 'scared', correct: 2, total: 3 },
+    { emotionId: 'nervous', correct: 1, total: 4 },
+  ],
+  confusionPairs: [{ emotionIds: ['nervous', 'scared'], count: 2 }],
+  reads: {
+    distinctStories: mockReadStoryIds.length,
+    total: mockReadStoryIds.length === 0 ? 0 : 6,
+  },
+  feelings: {
+    last7Days: [
+      { emotionId: 'happy', count: 2 },
+      { emotionId: 'calm', count: 2 },
+      { emotionId: 'nervous', count: 1 },
+      { emotionId: 'proud', count: 1 },
+    ],
+  },
+};
 
 function toStory(story: ApiStory): Story {
   const pages = story.pages.map(
@@ -160,6 +186,7 @@ function emptyState(): MockState {
     pinAttempts: 0,
     checkInAttempts: [],
     recentStoryIds: [],
+    readLogs: [],
   };
 }
 
@@ -240,9 +267,20 @@ function readState(): MockState {
             typeof attempt.page === 'number' &&
             typeof attempt.childId === 'string' &&
             isEmotionId(attempt.emotionId) &&
+            isEmotionId(attempt.correctEmotionId) &&
             typeof attempt.correct === 'boolean' &&
             (attempt.attempt === 1 || attempt.attempt === 2) &&
             typeof attempt.createdAt === 'string',
+        )
+      : [];
+    const readLogs = Array.isArray(value.readLogs)
+      ? value.readLogs.filter(
+          (read): read is ReadLogInput & { createdAt: string } =>
+            Boolean(read) &&
+            typeof read === 'object' &&
+            typeof read.childId === 'string' &&
+            typeof read.storyId === 'string' &&
+            typeof read.createdAt === 'string',
         )
       : [];
 
@@ -257,6 +295,7 @@ function readState(): MockState {
               typeof storyId === 'string' && storyId.length > 0,
           )
         : [],
+      readLogs,
     };
   } catch {
     return emptyState();
@@ -296,15 +335,74 @@ function generationChildProfile(child: Child): StoryGenerationChildProfile {
   };
 }
 
-async function ensurePracticeChild(childId: string): Promise<boolean> {
+function getMockDashboard(state: MockState): Dashboard {
+  const readStoryIds = new Set([
+    ...mockReadStoryIds,
+    ...state.readLogs.map((read) => read.storyId),
+  ]);
+
+  return {
+    accuracy: mockDashboard.accuracy.map((accuracy) => ({ ...accuracy })),
+    confusionPairs: mockDashboard.confusionPairs.map((pair) => ({
+      ...pair,
+      emotionIds: [...pair.emotionIds] as [EmotionId, EmotionId],
+    })),
+    reads: {
+      distinctStories: readStoryIds.size,
+      total: mockDashboard.reads.total + state.readLogs.length,
+    },
+    feelings: {
+      last7Days: mockDashboard.feelings.last7Days.map((feeling) => ({ ...feeling })),
+    },
+  };
+}
+
+function isDashboard(value: unknown): value is Dashboard {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Partial<Dashboard>;
+  return (
+    Array.isArray(candidate.accuracy) &&
+    candidate.accuracy.every(
+      (accuracy) =>
+        Boolean(accuracy) &&
+        isEmotionId(accuracy.emotionId) &&
+        typeof accuracy.correct === 'number' &&
+        typeof accuracy.total === 'number',
+    ) &&
+    Array.isArray(candidate.confusionPairs) &&
+    candidate.confusionPairs.every(
+      (pair) =>
+        Boolean(pair) &&
+        Array.isArray(pair.emotionIds) &&
+        pair.emotionIds.length === 2 &&
+        isEmotionId(pair.emotionIds[0]) &&
+        isEmotionId(pair.emotionIds[1]) &&
+        typeof pair.count === 'number',
+    ) &&
+    typeof candidate.reads?.distinctStories === 'number' &&
+    typeof candidate.reads?.total === 'number' &&
+    Array.isArray(candidate.feelings?.last7Days) &&
+    candidate.feelings.last7Days.every(
+      (feeling) =>
+        Boolean(feeling) &&
+        isEmotionId(feeling.emotionId) &&
+        typeof feeling.count === 'number',
+    )
+  );
+}
+
+async function ensureServerChild(childId: string): Promise<boolean> {
   const child = readState().child;
   if (!child || child.id !== childId) {
     return true;
   }
 
   try {
-    // The browser profile remains the source of truth for this phase. Practice
-    // mirrors it only when needed so its required server-side FeelingLog exists.
+    // The browser profile remains the source of truth for this phase. Mirror it
+    // only when a server-side child record is needed by a quiet log request.
     await requestApi<{ child: unknown }>('/api/children', {
       body: JSON.stringify({
         id: child.id,
@@ -397,14 +495,34 @@ export const api = {
     return stories.find((story) => story.id === storyId) ?? getDatabaseStory(storyId);
   },
 
-  async markStoryRead(storyId: string): Promise<void> {
-    if (!storyId) {
+  async markStoryRead(input: ReadLogInput): Promise<void> {
+    if (!input.childId || !input.storyId) {
       return;
     }
 
     const state = readState();
-    const recentStoryIds = [storyId, ...state.recentStoryIds.filter((id) => id !== storyId)];
-    writeState({ ...state, recentStoryIds });
+    const recentStoryIds = [
+      input.storyId,
+      ...state.recentStoryIds.filter((id) => id !== input.storyId),
+    ];
+    writeState({
+      ...state,
+      recentStoryIds,
+      readLogs: [...state.readLogs, { ...input, createdAt: new Date().toISOString() }],
+    });
+
+    if (!(await ensureServerChild(input.childId))) {
+      return;
+    }
+
+    try {
+      await requestApi<{ id: string }>('/api/reads', {
+        body: JSON.stringify(input),
+        method: 'POST',
+      });
+    } catch {
+      // A completed story stays complete for the child even when a log cannot be saved.
+    }
   },
 
   async generateStory(input: StoryGenerationInput): Promise<string> {
@@ -443,11 +561,24 @@ export const api = {
       ...state,
       checkInAttempts: [...state.checkInAttempts, attempt],
     });
+
+    if (!(await ensureServerChild(input.childId))) {
+      return;
+    }
+
+    try {
+      await requestApi<{ checkIn: unknown }>('/api/checkins', {
+        body: JSON.stringify(input),
+        method: 'POST',
+      });
+    } catch {
+      // The warm child flow never depends on a network response.
+    }
   },
 
   /** A feeling is self-report, not an assessment. A failed request is invisible to the child. */
   async recordFeeling(input: FeelingLogInput): Promise<void> {
-    if (!(await ensurePracticeChild(input.childId))) {
+    if (!(await ensureServerChild(input.childId))) {
       return;
     }
 
@@ -462,14 +593,16 @@ export const api = {
   },
 
   async getDashboard(childId: string): Promise<Dashboard> {
-    if (!(await ensurePracticeChild(childId))) {
-      return { feelings: { last7Days: [] } };
+    const fallback = getMockDashboard(readState());
+    if (!(await ensureServerChild(childId))) {
+      return fallback;
     }
 
     try {
-      return await requestApi<Dashboard>(`/api/dashboard/${encodeURIComponent(childId)}`);
+      const dashboard = await requestApi<unknown>(`/api/dashboard/${encodeURIComponent(childId)}`);
+      return isDashboard(dashboard) ? dashboard : fallback;
     } catch {
-      return { feelings: { last7Days: [] } };
+      return fallback;
     }
   },
 };

@@ -120,18 +120,35 @@ export const generatedStorySchema = z
     }
   });
 
-export const checkInAttemptSchema = z.object({
-  storyId: recordIdSchema,
-  page: z.number().int().positive(),
-  childId: recordIdSchema,
-  emotionId: emotionIdSchema,
-  correct: z.boolean(),
-  attempt: z.union([z.literal(1), z.literal(2)]),
-});
+export const checkInAttemptSchema = z
+  .object({
+    storyId: recordIdSchema,
+    page: z.number().int().positive(),
+    childId: recordIdSchema,
+    emotionId: emotionIdSchema,
+    correctEmotionId: emotionIdSchema,
+    correct: z.boolean(),
+    attempt: z.union([z.literal(1), z.literal(2)]),
+  })
+  .superRefine((attempt, context) => {
+    const isCorrect = attempt.emotionId === attempt.correctEmotionId;
+    if (attempt.correct !== isCorrect) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'correct must match the selected and correct emotion ids.',
+        path: ['correct'],
+      });
+    }
+  });
 
 export const feelingLogSchema = z.object({
   childId: recordIdSchema,
   emotionId: emotionIdSchema,
+});
+
+export const readLogSchema = z.object({
+  childId: recordIdSchema,
+  storyId: recordIdSchema,
 });
 
 export type EmotionId = z.infer<typeof emotionIdSchema>;

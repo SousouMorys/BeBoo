@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db.js';
+import { detectedConfusionPairs, firstAttemptAccuracy, readSummary } from '../lib/dashboard.js';
 import { emotionIds, idParamSchema } from '../schemas.js';
 import { asyncRoute, notFound, params } from './helpers.js';
 
@@ -18,8 +19,10 @@ dashboardRouter.get(
     const child = await db.child.findUnique({
       where: { id },
       select: {
-        stats: true,
-        stories: { where: { status: 'ready' }, select: { id: true } },
+        results: {
+          select: { emotionId: true, correctEmotionId: true, correct: true, attempt: true },
+        },
+        readLogs: { select: { storyId: true } },
       },
     });
     if (!child) return notFound(response);
@@ -34,12 +37,9 @@ dashboardRouter.get(
     );
 
     response.json({
-      accuracy: child.stats.map((stat) => ({
-        emotionId: stat.emotionId,
-        correct: stat.correct,
-        missed: stat.missed,
-      })),
-      storiesRead: child.stories.length,
+      accuracy: firstAttemptAccuracy(child.results),
+      confusionPairs: detectedConfusionPairs(child.results),
+      reads: readSummary(child.readLogs.map((read) => read.storyId)),
       feelings: {
         last7Days: emotionIds.flatMap((emotionId) => {
           const count = countsByEmotion.get(emotionId);

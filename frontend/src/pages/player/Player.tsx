@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { BebooMascot } from '../../components/BebooMascot';
 import { useReducedMotion } from '../../hooks/useReducedMotion';
@@ -39,6 +39,7 @@ export function Player() {
   const navigate = useNavigate();
   const [model, setModel] = useState<PlayerModel | null | undefined>(undefined);
   const [flowIndex, setFlowIndex] = useState(0);
+  const loggedEndingRef = useRef<string | null>(null);
   const reducedMotion = useReducedMotion(model?.child.settings.reduceAnimations ?? true);
 
   useEffect(() => {
@@ -64,6 +65,22 @@ export function Player() {
     () => (model ? makeFlow(model.story, model.child.settings.checkIns) : []),
     [model],
   );
+  const activeStep = model ? flow[flowIndex] ?? flow[0] : null;
+
+  useEffect(() => {
+    if (!model || activeStep?.kind !== 'ending') {
+      loggedEndingRef.current = null;
+      return;
+    }
+
+    const endingKey = `${model.child.id}:${model.story.id}:${flowIndex}`;
+    if (loggedEndingRef.current === endingKey) {
+      return;
+    }
+
+    loggedEndingRef.current = endingKey;
+    void api.markStoryRead({ childId: model.child.id, storyId: model.story.id });
+  }, [activeStep?.kind, flowIndex, model]);
 
   if (model === undefined) {
     return (
@@ -78,7 +95,11 @@ export function Player() {
   }
 
   const player = model;
-  const step = flow[flowIndex] ?? flow[0];
+  const step = activeStep;
+
+  if (!step) {
+    return <Navigate replace to="/" />;
+  }
 
   function goToNextStep() {
     setFlowIndex((current) => Math.min(current + 1, flow.length - 1));

@@ -360,6 +360,35 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   README and STORY_RULES compatibility notes so the default development model
   is accurately documented.
 
+## 2026-07-21 - Parent Progress dashboard
+
+- Completed the parent-only P4 dashboard with first-attempt accuracy rows,
+  shared 44 px emotion faces, calm teal-on-sand progress bars, unordered
+  confusion pairs, distinct-story and total-read copy, and the existing
+  seven-day Practice feelings block.
+- Added durable dashboard data: `CheckInResult.correctEmotionId`, a cascading
+  `ReadLog`, canonical Zod validation, `POST /api/reads`, and one dashboard
+  response containing accuracy, eligible confusion pairs, reads, and feelings.
+  Check-in writes now verify both the correct answer and the selected option
+  against the stored page definition.
+- Added deterministic demo history to `npm run seed`: Sami is strong on happy
+  and calm, has two nervous/scared misses producing one surfaced pair, has
+  rereads across three seed stories, and has feelings spread across the last
+  week. The static frontend fallback mirrors a populated dashboard for
+  frontend-only demos.
+- Verification:
+  - Applied `20260721090000_add_progress_dashboard` to Neon and ran
+    `npm run seed` cleanly. The seeded endpoint returned happy 4/4, calm 3/3,
+    nervous 1/3, one nervous/scared pair, and 3 stories read 5 times.
+  - Added Vitest coverage for first-attempt accuracy, canonical/unordered pair
+    detection and its two-miss threshold, top-two limiting, and rereads.
+  - Ran the BRAND section 11 checklist on the parent tab: it is parent-only,
+    uses the shared face set at parent size, has no child-visible scores,
+    alerts, red treatment, motion, autoplay, or advice copy, and retains
+    literal empty states and 44 px parent controls.
+  - `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build`
+    pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing

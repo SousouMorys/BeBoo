@@ -98,6 +98,7 @@ export interface CheckInAttemptInput {
   page: number;
   childId: string;
   emotionId: EmotionId;
+  correctEmotionId: EmotionId;
   correct: boolean;
   attempt: 1 | 2;
 }
@@ -116,10 +117,34 @@ export interface FeelingCount {
   count: number;
 }
 
+export interface EmotionAccuracy {
+  emotionId: EmotionId;
+  correct: number;
+  total: number;
+}
+
+export interface ConfusionPair {
+  emotionIds: [EmotionId, EmotionId];
+  count: number;
+}
+
+export interface ReadSummary {
+  distinctStories: number;
+  total: number;
+}
+
 export interface Dashboard {
+  accuracy: EmotionAccuracy[];
+  confusionPairs: ConfusionPair[];
+  reads: ReadSummary;
   feelings: {
     last7Days: FeelingCount[];
   };
+}
+
+export interface ReadLogInput {
+  childId: string;
+  storyId: string;
 }
 
 export interface StoryGenerationInput {
