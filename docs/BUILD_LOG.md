@@ -389,6 +389,21 @@ decisions, anything fixed. High-value ideas that are out of scope go under
   - `npm run typecheck`, `npm run lint`, `npm run test`, and `npm run build`
     pass.
 
+## 2026-07-21 - Submission README and MIT license
+
+- Rewrote the root README for a five-minute judge review: it now begins with
+  the live demo, video placeholder, and zero-key frontend-only path; documents
+  the real full-stack setup, every `.env.example` variable, sample data,
+  troubleshooting, safety boundaries, and the project-document map.
+- Added an explicit, evidence-based account of the Codex/GPT-5.6 workflow:
+  the durable `AGENTS.md` safety contract, concrete implementation work Codex
+  accelerated, creator-owned pipeline decisions, and the runtime model roles.
+- Updated the MIT copyright attribution to SousouMorys.
+- Verification: checked README commands against the root and workspace scripts,
+  the migration command, `backend/.env.example`, runtime defaults, seed data,
+  and the commit history. `npm run typecheck`, `npm run lint`, `npm run test`,
+  and `npm run build` pass.
+
 ## Proposed (not built)
 
 - Printable PDF export of a story from the parent library, for practicing
