@@ -116,26 +116,20 @@ progress without having to create dozens of check-ins first.
 
 ## How this was built with Codex and GPT-5.6 Terra
 
-Before implementation, I wrote five working specifications covering the
-product flow, brand, architecture, story rules, and build plan. `AGENTS.md`
-then turned those decisions into durable guidance: its nine child-safety rules
-were treated as acceptance criteria throughout the build.
+Before implementation, I wrote five working specifications covering the product flow, brand, architecture, story rules, and build plan. `AGENTS.md` then turned those decisions into durable guidance: its nine child-safety rules were treated as strict acceptance criteria throughout the build.
 
-The core build stayed in one Codex thread from scaffold through final
-verification. The Git history records timestamped milestone commits from
-July 17 to July 21; the dated [build log](docs/BUILD_LOG.md) records the
-decision, verification, and repair history alongside them.
+The core build was orchestrated through a main Codex thread (literally named "read project docs first") that leveraged **parallel sub-agents** for rapid, simultaneous execution. The Git history records timestamped milestone commits from July 17 to July 21; the dated [build log](docs/BUILD_LOG.md) records the decision, verification, and repair history alongside them.
 
-Codex was the implementation partner. I supplied the product constraints,
-safety boundaries, and final decisions; Codex accelerated the concrete work:
+Codex acted as a fully autonomous engineering team. I supplied the product constraints, safety boundaries, and final decisions; Codex orchestrated the parallel work:
 
 | Area | What Codex accelerated | What I decided |
 | --- | --- | --- |
-| Static-first foundation | Scaffolded the React/Express/Prisma workspace, the seed-backed `api.ts` boundary, and the child shelf/player so the first demo worked without a database or key. | A static-first path with one swappable frontend data boundary, so judges can run the child flow safely. |
-| Story safety | Implemented structured-output generation, deterministic validation, reviewer tests, and a repair for false metadata vocabulary failures. | A two-pass GPT-5.6 Terra flow with strict JSON, bounded retries, and child-visible safety checks. |
-| Illustration consistency | Built the cached character-sheet and page-edit pipeline, centralized model settings, and tested model-specific image-edit compatibility. | One reference character sheet plus image edits, not unrelated page images; no silent model fallback. |
-| Synchronized narration | Wired TTS, Whisper alignment, the proportional-timing fallback, and a player clock driven by real audio time. | Tap-only playback, word highlighting when trustworthy, and a fallback that never blocks a calming story. |
-| Parent progress | Added the schema migration, seeded history, dashboard calculations, tests, and parent-only Progress layout. | First-attempt signals only, a two-miss confusion threshold, rereads treated positively, and no child-visible scoring. |
+| **Multi-Agent Orchestration** | Spawned specialized parallel sub-agents (backend foundation, backend runtime, frontend generation) to build simultaneously in clean contexts. | Structured the `/docs` folder and `AGENTS.md` so parallel agents shared a single source of truth without colliding. |
+| **Static-first foundation** | Scaffolded the React/Express/Prisma workspace, the seed-backed `api.ts` boundary, and the child shelf/player so the first demo worked without a database or key. | A static-first path with one swappable frontend data boundary, so judges can run the child flow safely. |
+| **Story safety** | Implemented structured-output generation, deterministic validation, reviewer tests, and a repair for false metadata vocabulary failures. | A two-pass GPT-5.6 Terra flow with strict JSON, bounded retries, and child-visible safety checks. |
+| **Illustration consistency** | Built the cached character-sheet and page-edit pipeline, centralized model settings, and tested model-specific image-edit compatibility. | One reference character sheet plus image edits, not unrelated page images; no silent model fallback. |
+| **Synchronized narration** | Wired TTS, Whisper alignment, the proportional-timing fallback, and a player clock driven by real audio time. | Tap-only playback, word highlighting when trustworthy, and a fallback that never blocks a calming story. |
+| **Parent progress** | Added the schema migration, seeded history, dashboard calculations, tests, and parent-only Progress layout. | First-attempt signals only, a two-miss confusion threshold, rereads treated positively, and no child-visible scoring. |
 
 ### Key decisions I made
 
